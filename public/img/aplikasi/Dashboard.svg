@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Creator: CorelDRAW X7 -->
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="1.66666in" height="1.66666in" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd"
+viewBox="0 0 1667 1667"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+   <![CDATA[
+    .fil0 {fill:none}
+    .fil1 {fill:#01C6FD}
+    .fil3 {fill:#24D28D}
+    .fil5 {fill:#F56240}
+    .fil4 {fill:#F9D541}
+    .fil2 {fill:red}
+   ]]>
+  </style>
+    <clipPath id="id0">
+     <path d="M859 478l827 0 0 1213 -827 0 0 -1213z"/>
+    </clipPath>
+    <clipPath id="id1">
+     <path d="M5 5l398 0 0 398 -398 0 0 -398z"/>
+    </clipPath>
+    <clipPath id="id2">
+     <path d="M492 19l1174 0 0 403 -1174 0 0 -403z"/>
+    </clipPath>
+    <clipPath id="id3">
+     <path d="M6 497l803 0 0 562 -803 0 0 -562z"/>
+    </clipPath>
+    <clipPath id="id4">
+     <path d="M13 1127l803 0 0 562 -803 0 0 -562z"/>
+    </clipPath>
+ </defs>
+ <g id="Layer_x0020_1">
+  <metadata id="CorelCorpID_0Corel-Layer"/>
+  <rect class="fil0" width="1667" height="1667"/>
+  <g id="_2543632656512">
+   <g style="clip-path:url(#id0)">
+    <image x="859" y="478" width="827" height="1213" xlink:href="Dashboard_Images\Dashboard_ImgID1.png"/>
+   </g>
+  </g>
+  <rect class="fil1" x="891" y="506" width="752" height="1138" rx="123" ry="122"/>
+  <g id="_2543632656352">
+   <g style="clip-path:url(#id1)">
+    <image x="5" y="5" width="398" height="398" xlink:href="Dashboard_Images\Dashboard_ImgID2.png"/>
+   </g>
+  </g>
+  <circle class="fil2" cx="204" cy="204" r="181"/>
+  <g id="_2543632656224">
+   <g style="clip-path:url(#id2)">
+    <image x="492" y="19" width="1174" height="403" xlink:href="Dashboard_Images\Dashboard_ImgID3.png"/>
+   </g>
+  </g>
+  <rect class="fil3" x="506" y="23" width="1137" height="366" rx="123" ry="123"/>
+  <g id="_2543632656128">
+   <g style="clip-path:url(#id3)">
+    <image x="6" y="497" width="803" height="562" xlink:href="Dashboard_Images\Dashboard_ImgID4.png"/>
+   </g>
+  </g>
+  <rect class="fil4" x="23" y="506" width="752" height="511" rx="123" ry="123"/>
+  <g id="_2543583816112">
+   <g style="clip-path:url(#id4)">
+    <image x="13" y="1127" width="803" height="562" xlink:href="Dashboard_Images\Dashboard_ImgID5.png"/>
+   </g>
+  </g>
+  <rect class="fil5" x="23" y="1132" width="752" height="511" rx="123" ry="123"/>
+ </g>
+</svg>
