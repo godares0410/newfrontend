@@ -13,7 +13,7 @@ type MenuItem = {
     link: string;
 };
 
-// Definisi tipe untuk setiap menu
+// Definisi tipe untuk setiap menu app
 type MenuConfig = {
     icon: string;
     label: string;
