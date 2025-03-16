@@ -10,13 +10,15 @@ interface NavProps {
     currentPage: number;
     totalPages: number;
     setCurrentPage: (page: number) => void;
+    viewMode: "kanban" | "list"; // Tambahkan viewMode
+    setViewMode: (mode: "kanban" | "list") => void; // Tambahkan setViewMode
 }
 
-export default function Nav({ searchQuery, setSearchQuery, currentPage, totalPages, setCurrentPage }: NavProps) {
+export default function Nav({ searchQuery, setSearchQuery, currentPage, totalPages, setCurrentPage, viewMode, setViewMode }: NavProps) {
     return (
         <div className="w-full items-center justify-between h-16 px-8 grid grid-cols-3 gap-4">
             <div className="gap-2 flex items-center">
-                <div className="text-md py-2 flex justify-center items-center bg-emerald-600 text-white px-3 rounded-lg hover:bg-emerald-700 cursor-pointer">
+                <div className="text-sm py-2 flex justify-center items-center bg-emerald-600 text-white px-3 rounded-lg hover:bg-emerald-700 cursor-pointer">
                     Tambah
                 </div>
                 <div className="text-2xl text-slate-700">Siswa</div>
@@ -50,10 +52,16 @@ export default function Nav({ searchQuery, setSearchQuery, currentPage, totalPag
                     </button>
                 </div>
                 <div className="flex gap-0.5">
-                    <div className="h-8 w-8 bg-amber-300 rounded-md p-1 cursor-pointer">
+                    <div
+                        className={`h-8 w-8 ${viewMode === "kanban" ? "bg-amber-300" : "bg-gray-300"} rounded-md p-1 cursor-pointer`}
+                        onClick={() => setViewMode("kanban")}
+                    >
                         <TbLayoutKanbanFilled className="w-full h-full" />
                     </div>
-                    <div className="h-8 w-8 bg-amber-300 rounded-md p-1 cursor-pointer">
+                    <div
+                        className={`h-8 w-8 ${viewMode === "list" ? "bg-amber-300" : "bg-gray-300"} rounded-md p-1 cursor-pointer`}
+                        onClick={() => setViewMode("list")}
+                    >
                         <FaThList className="w-full h-full" />
                     </div>
                 </div>

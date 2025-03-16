@@ -20,37 +20,13 @@ type MenuConfig = {
     menuItems: MenuItem[];
 };
 
-// Definisi tipe untuk objek menuConfig
-const menuConfig: Record<string, MenuConfig> = {
-    "/siswa": {
-        icon: "/img/aplikasi/Siswa.svg",
-        label: "Siswa",
-        menuItems: [
-            { label: "Daftar Siswa", link: "/siswa/daftar-siswa" },
-            { label: "Buku Induk", link: "/siswa/buku-induk" },
-            { label: "Catatan", link: "/siswa/catatan" },
-            { label: "Laporan", link: "/siswa/laporan" },
-        ],
-    },
-    "/guru": {
-        icon: "/img/aplikasi/Guru.svg",
-        label: "Guru",
-        menuItems: [
-            { label: "Daftar Guru", link: "/guru/daftar-guru" },
-            { label: "Perangkat", link: "/guru/perangkat" },
-            { label: "Catatan", link: "/guru/catatan" },
-            { label: "Laporan", link: "/guru/laporan" },
-        ],
-    },
+// Definisi tipe untuk props Header
+type HeaderProps = {
+    menuData: MenuConfig;
 };
 
-const Header = () => {
+const Header = ({ menuData }: HeaderProps) => {
     const [isHovered, setIsHovered] = useState(false);
-    const pathname = usePathname(); // Ambil path saat ini
-
-    // Cari path yang cocok dalam menuConfig
-    const currentPath = Object.keys(menuConfig).find((path) => pathname.startsWith(path)) || "/siswa";
-    const menuData: MenuConfig = menuConfig[currentPath];
 
     return (
         <div className="w-full h-12 lg:px-6 flex justify-between items-center">
