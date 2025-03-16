@@ -33,22 +33,18 @@ const SiswaCard: React.FC<SiswaCardProps> = ({ siswa, ekskulData }) => {
     return (
         <div className="h-44 bg-white shadow-lg flex rounded-lg p-2">
             {/* Bagian Foto Siswa */}
-            <div className="w-36 h-full rounded-lg overflow-hidden relative">
+            <div className="w-[30%] h-full rounded-lg overflow-hidden relative">
                 <Image
                     src={`/img/siswa/sabilillah/${fotoSiswa}`}
                     alt={`Foto ${siswa.nama}`}
-                    width={144}
-                    height={176}
-                    className="object-cover w-full h-full"
-                    onError={(e) => {
-                        // Jika gambar gagal dimuat, gunakan gambar default
-                        e.currentTarget.src = "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg";
-                    }}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 144px"
+                    className="object-cover"
+                    priority
                 />
             </div>
-
             {/* Bagian Informasi Siswa */}
-            <div className="flex-1 h-full px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            <div className="w-[70%] flex-1 h-full px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent scrollbar-none">
                 {/* Status Aktif (Contoh: Titik Hijau) */}
                 <div className="absolute w-3 h-3 bg-emerald-500 rounded-full right-2 top-2"></div>
 
@@ -81,7 +77,8 @@ const SiswaCard: React.FC<SiswaCardProps> = ({ siswa, ekskulData }) => {
                             return ekskulInfo ? (
                                 <div
                                     key={idx}
-                                    className={`text-xs text-white px-2 py-1 rounded-md ${ekskulInfo.warna}`}
+                                    className="text-xs text-white px-2 py-1 rounded-md"
+                                    style={{ backgroundColor: ekskulInfo.warna }}
                                 >
                                     {ekskulInfo.nama}
                                 </div>
@@ -91,6 +88,7 @@ const SiswaCard: React.FC<SiswaCardProps> = ({ siswa, ekskulData }) => {
                         <div className="text-xs text-slate-400">Tidak ada ekskul</div>
                     )}
                 </div>
+
             </div>
         </div>
     );

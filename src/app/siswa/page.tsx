@@ -39,28 +39,34 @@ export default function Siswa() {
     const [ekskulData, setEkskulData] = useState<Ekskul[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 100;
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get<{ data_siswa: Siswa[] }>("http://localhost:3001/siswa");
+                const response = await axios.get<{ data_siswa: Siswa[]; total: number }>("/api/siswa", {
+                    params: {
+                        page: currentPage,
+                        search: searchQuery,
+                    },
+                });
                 setSiswaData(response.data.data_siswa);
-
+                setTotalPages(Math.ceil(response.data.total / itemsPerPage)); // Hitung total halaman
+    
                 const warnaEkskul = response.data.data_siswa.flatMap(siswa =>
                     siswa.ekskul.map(e => ({ nama: e.nama, warna: e.warna }))
                 );
-
+    
                 const uniqueWarnaEkskul = Array.from(new Set(warnaEkskul.map(e => e.nama)))
                     .map(nama => {
                         return warnaEkskul.find(e => e.nama === nama);
                     })
                     .filter((e): e is Ekskul => e !== undefined);
-
+    
                 setEkskulData(uniqueWarnaEkskul);
                 setIsLoading(false);
             } catch (err) {
-                // Type guard untuk memeriksa apakah err adalah instance dari Error
                 if (err instanceof Error) {
                     setError(err.message);
                 } else {
@@ -69,19 +75,30 @@ export default function Siswa() {
                 setIsLoading(false);
             }
         };
-
+    
         fetchData();
+    }, [currentPage, searchQuery]); // Fetch data saat halaman atau pencarian berubah
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1280) {
+                setIsCollapsed(true);
+            } else {
+                setIsCollapsed(false);
+            }
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
     }, []);
 
-    const filteredSiswaData = siswaData.filter((siswa: Siswa) =>
-        siswa.nama_siswa.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        siswa.nis.includes(searchQuery) ||
-        siswa.nisn.includes(searchQuery)
-    );
-
-    const totalPages = Math.ceil(filteredSiswaData.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentSiswaData = filteredSiswaData.slice(startIndex, startIndex + itemsPerPage);
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+    };
 
     if (isLoading) {
         return (
@@ -113,11 +130,11 @@ export default function Siswa() {
                 setSearchQuery={setSearchQuery}
                 currentPage={currentPage}
                 totalPages={totalPages}
-                setCurrentPage={setCurrentPage}
+                setCurrentPage={handlePageChange}
             />
             <div className="flex-1 flex w-full overflow-hidden">
-                <div className={`h-full bg-red-200 transition-all duration-300 ${isCollapsed ? "w-12" : "w-62"}`}>
-                    <div className="flex justify-end px-3">
+                <div className={`h-full bg-red-200 transition-all duration-300 ${isCollapsed ? "w-5" : "w-62"} hidden md:block`}>
+                    <div className={`flex justify-end ${isCollapsed ? "p-1" : "px-3"}`}>
                         {isCollapsed ? (
                             <FaAngleDoubleRight className="mt-3 text-sm cursor-pointer" onClick={() => setIsCollapsed(false)} />
                         ) : (
@@ -126,8 +143,8 @@ export default function Siswa() {
                     </div>
                 </div>
                 <div className="w-full h-full p-4 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
-                    <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 w-full">
-                        {currentSiswaData.map((siswa, index) => (
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full">
+                        {siswaData.map((siswa, index) => (
                             <SiswaCard
                                 key={index}
                                 siswa={{
