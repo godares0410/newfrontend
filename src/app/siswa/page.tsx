@@ -1,149 +1,113 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Header from "../components/Header";
 import Nav from "../components/Nav";
 import SiswaCard from "../components/Siswa/DataSiswa/SiswaCard";
 
-// const siswaData = [
-//     {
-//         nama: "Fahmi Ramadhan Fahmi Ramadhan",
-//         nis: "220101",
-//         nisn: "0056789123",
-//         kelas: "XII - Rekayasa Perangkat Lunak",
-//         rombel: "XII - RPL 1",
-//         ekskul: ["Osis", "Paskibra"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Aisyah Putri",
-//         nis: "220102",
-//         nisn: "0056789124",
-//         kelas: "XI - Desain Komunikasi Visual",
-//         rombel: "XI - DKV 2",
-//         ekskul: ["Pramuka"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Bintang Mahardika",
-//         nis: "220103",
-//         nisn: "0056789125",
-//         kelas: "X - Teknik Jaringan Komputer",
-//         rombel: "X - TKJ 1",
-//         ekskul: ["Basket", "KIR"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Citra Melati",
-//         nis: "220104",
-//         nisn: "0056789126",
-//         kelas: "XII - Akuntansi",
-//         rombel: "XII - AKT 3",
-//         ekskul: ["Paskibra", "Basket"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Dian Purnama",
-//         nis: "220105",
-//         nisn: "0056789127",
-//         kelas: "XI - Teknik Mesin",
-//         rombel: "XI - TM 2",
-//         ekskul: ["KIR", "Osis"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Eko Saputro",
-//         nis: "220106",
-//         nisn: "0056789128",
-//         kelas: "X - Farmasi",
-//         rombel: "X - FAR 1",
-//         ekskul: ["Basket"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Fitri Handayani",
-//         nis: "220107",
-//         nisn: "0056789129",
-//         kelas: "XII - Multimedia",
-//         rombel: "XII - MM 1",
-//         ekskul: ["Osis", "Pramuka"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Gilang Pratama",
-//         nis: "220108",
-//         nisn: "0056789130",
-//         kelas: "XI - Teknik Elektro",
-//         rombel: "XI - TE 2",
-//         ekskul: ["Pramuka", "Paskibra"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Hana Salsabila",
-//         nis: "220109",
-//         nisn: "0056789131",
-//         kelas: "X - Teknik Otomotif",
-//         rombel: "X - TO 1",
-//         ekskul: ["Paskibra", "KIR"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     },
-//     {
-//         nama: "Iqbal Ramadhan",
-//         nis: "220110",
-//         nisn: "0056789132",
-//         kelas: "XII - Rekayasa Perangkat Lunak",
-//         rombel: "XII - RPL 2",
-//         ekskul: ["KIR"],
-//         foto: "/img/siswa/sabilillah/A. Asfihani_1716972308.jpg"
-//     }
-// ];
+type Siswa = {
+    id_siswa: number;
+    kode_siswa: string;
+    nisn: string;
+    nis: string;
+    nama_siswa: string;
+    jenis_kelamin: string;
+    tahun_masuk: number;
+    foto: string;
+    status: string;
+    id_sekolah: number;
+    created_at: string;
+    updated_at: string;
+    nama_kelas: string;
+    nama_jurusan: string;
+    nama_rombel: string;
+    ekskul: { nama: string; warna: string }[];
+};
 
-const siswaData = Array.from({ length: 1000 }, (_, i) => {
-    const ekskulList = ["Osis", "Pramuka", "Basket", "Paskibra", "KIR"];
-    return {
-        nama: `Siswa ${i + 1}`,
-        nis: (220100 + i + 1).toString(),
-        nisn: (56789123 + i + 1).toString(),
-        kelas: `X${i % 3 + 1} - Jurusan ${i % 5 + 1}`,
-        rombel: `X${i % 3 + 1} - R${i % 4 + 1}`,
-        ekskul: ekskulList.filter(() => Math.random() > 0.5),
-        foto: `/img/siswa/sabilillah/A. Asfihani_1716972308.jpg`
-    };
-});
-
-const ekskulData = [
-    { nama: "Osis", warna: "bg-emerald-700" },
-    { nama: "Pramuka", warna: "bg-blue-600" },
-    { nama: "Basket", warna: "bg-red-600" },
-    { nama: "Paskibra", warna: "bg-yellow-600" },
-    { nama: "KIR", warna: "bg-purple-600" }
-];
+type Ekskul = {
+    nama: string;
+    warna: string;
+};
 
 export default function Siswa() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [siswaData, setSiswaData] = useState<Siswa[]>([]);
+    const [ekskulData, setEkskulData] = useState<Ekskul[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const itemsPerPage = 100;
 
-    // Fungsi untuk memfilter data siswa berdasarkan searchQuery
-    const filteredSiswaData = siswaData.filter(siswa =>
-        siswa.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get<{ data_siswa: Siswa[] }>("http://localhost:3001/siswa");
+                setSiswaData(response.data.data_siswa);
+
+                const warnaEkskul = response.data.data_siswa.flatMap(siswa =>
+                    siswa.ekskul.map(e => ({ nama: e.nama, warna: e.warna }))
+                );
+
+                const uniqueWarnaEkskul = Array.from(new Set(warnaEkskul.map(e => e.nama)))
+                    .map(nama => {
+                        return warnaEkskul.find(e => e.nama === nama);
+                    })
+                    .filter((e): e is Ekskul => e !== undefined);
+
+                setEkskulData(uniqueWarnaEkskul);
+                setIsLoading(false);
+            } catch (err) {
+                // Type guard untuk memeriksa apakah err adalah instance dari Error
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError("An unknown error occurred");
+                }
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const filteredSiswaData = siswaData.filter((siswa: Siswa) =>
+        siswa.nama_siswa.toLowerCase().includes(searchQuery.toLowerCase()) ||
         siswa.nis.includes(searchQuery) ||
         siswa.nisn.includes(searchQuery)
     );
 
-    // Menghitung total halaman
     const totalPages = Math.ceil(filteredSiswaData.length / itemsPerPage);
-
-    // Menghitung data yang akan ditampilkan berdasarkan halaman saat ini
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentSiswaData = filteredSiswaData.slice(startIndex, startIndex + itemsPerPage);
+
+    if (isLoading) {
+        return (
+            <main className="h-screen flex flex-col items-center bg-cyan-100 overflow-auto">
+                <Header />
+                <div className="flex-1 flex justify-center items-center">
+                    <p>Loading...</p>
+                </div>
+            </main>
+        );
+    }
+
+    if (error) {
+        return (
+            <main className="h-screen flex flex-col items-center bg-cyan-100 overflow-auto">
+                <Header />
+                <div className="flex-1 flex justify-center items-center">
+                    <p className="text-red-500">Error: {error}</p>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="h-screen flex flex-col items-center bg-cyan-100 overflow-auto">
             <Header />
-            {/* Nav */}
             <Nav
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
@@ -151,7 +115,6 @@ export default function Siswa() {
                 totalPages={totalPages}
                 setCurrentPage={setCurrentPage}
             />
-            {/* End Nav */}
             <div className="flex-1 flex w-full overflow-hidden">
                 <div className={`h-full bg-red-200 transition-all duration-300 ${isCollapsed ? "w-12" : "w-62"}`}>
                     <div className="flex justify-end px-3">
@@ -165,7 +128,19 @@ export default function Siswa() {
                 <div className="w-full h-full p-4 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                     <div className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-4 w-full">
                         {currentSiswaData.map((siswa, index) => (
-                            <SiswaCard key={index} siswa={siswa} ekskulData={ekskulData} />
+                            <SiswaCard
+                                key={index}
+                                siswa={{
+                                    nama: siswa.nama_siswa,
+                                    nis: siswa.nis,
+                                    nisn: siswa.nisn,
+                                    kelas: siswa.nama_kelas,
+                                    rombel: siswa.nama_rombel,
+                                    ekskul: siswa.ekskul.map(e => e.nama),
+                                    foto: siswa.foto
+                                }}
+                                ekskulData={ekskulData}
+                            />
                         ))}
                     </div>
                 </div>

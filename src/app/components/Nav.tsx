@@ -31,8 +31,8 @@ export default function Nav({ searchQuery, setSearchQuery, currentPage, totalPag
                 />
                 <IoMdSearch className="text-xl text-slate-700" />
             </div>
-            <div className="border flex justify-center items-center h-full gap-4">
-                <div className="flex items-center border">
+            <div className=" flex justify-center items-center h-full gap-4">
+                <div className="flex items-center">
                     <span className="text-slate-700 text-sm">{`${currentPage} dari ${totalPages}`}</span>
                     <button
                         className="text-slate-700 text-2xl cursor-pointer disabled:opacity-50 disabled:cursor-default"
