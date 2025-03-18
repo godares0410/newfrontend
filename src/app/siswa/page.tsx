@@ -6,6 +6,7 @@ import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
 import Header from "../components/Header";
 import Nav from "../components/Nav";
 import SiswaCard from "../components/Siswa/DataSiswa/SiswaCard";
+import SiswaTable from "../components/Siswa/DataSiswa/SiswaTable";
 
 type Siswa = {
     id_siswa: number;
@@ -42,8 +43,6 @@ export default function Siswa() {
     const [totalPages, setTotalPages] = useState(1);
     const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban"); // Tambahkan state untuk mode tampilan
     const itemsPerPage = 100;
-    const [sortBy, setSortBy] = useState<string | null>(null); // Kolom yang diurutkan
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
     // Data menu untuk Header
     const menuData = {
@@ -56,30 +55,6 @@ export default function Siswa() {
             { label: "Laporan", link: "/siswa/laporan" },
         ],
     };
-
-    // Fungsi untuk meng-handle pengurutan
-    const handleSort = (column: string) => {
-        if (sortBy === column) {
-            // Jika kolom yang sama di-klik, ubah arah pengurutan
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-        } else {
-            // Jika kolom berbeda di-klik, set kolom baru dan default ke ascending
-            setSortBy(column);
-            setSortOrder("asc");
-        }
-    };
-
-    // Fungsi untuk mengurutkan data
-    const sortedData = [...siswaData].sort((a, b) => {
-        if (!sortBy) return 0; // Jika tidak ada kolom yang diurutkan, kembalikan data asli
-
-        const valueA = a[sortBy as keyof Siswa];
-        const valueB = b[sortBy as keyof Siswa];
-
-        if (valueA < valueB) return sortOrder === "asc" ? -1 : 1;
-        if (valueA > valueB) return sortOrder === "asc" ? 1 : -1;
-        return 0;
-    });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -204,42 +179,7 @@ export default function Siswa() {
                             ))}
                         </div>
                     ) : (
-                        // Tampilan List/Table
-                        <div className="w-full overflow-x-auto">
-                            <table className="min-w-full bg-white border border-gray-200">
-                                <thead>
-                                    <tr className="bg-slate-100">
-                                        <th className="px-4 py-2 border-b border-slate-200 text-center">No</th> {/* Kolom No */}
-                                        <th className="px-4 py-2 border-b border-slate-200 text-center">Nama</th>
-                                        <th className="px-4 py-2 border-b border-slate-200 text-center">NIS</th>
-                                        <th className="px-4 py-2 border-b border-slate-200 text-center">NISN</th>
-                                        <th className="px-4 py-2 border-b border-slate-200 text-center">Kelas</th>
-                                        <th className="px-4 py-2 border-b border-slate-200 text-center">Rombel</th>
-                                        <th className="px-4 py-2 border-b border-slate-200 text-center">Ekskul</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {siswaData.map((siswa, index) => (
-                                        <tr
-                                            key={index}
-                                            className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50"} text-slate-600`} // Warna latar belakang dan teks
-                                        >
-                                            <td className="px-4 py-2 border-b border-slate-200 text-center">{index + 1}</td> {/* Nomor urut */}
-                                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nama_siswa}</td>
-                                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nis}</td>
-                                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nisn}</td>
-                                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nama_kelas}</td>
-                                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nama_rombel}</td>
-                                            <td className="px-4 py-2 border-b border-slate-200 text-center">
-                                                {siswa.ekskul.map((e, i) => (
-                                                    <span key={i} className="mr-1">{e.nama}</span>
-                                                ))}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                        <SiswaTable siswaData={siswaData} />
                     )}
                 </div>
             </div>
