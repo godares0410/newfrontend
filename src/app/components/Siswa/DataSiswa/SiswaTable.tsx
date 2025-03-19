@@ -25,9 +25,22 @@ type SiswaTableProps = {
     siswaData: Siswa[];
     sortOrder: "asc" | "desc";
     onSortToggle: () => void;
+    totalData: number; // Total data dari database
+    currentPage: number; // Halaman saat ini
+    itemsPerPage: number; // Jumlah data per halaman
 };
 
-const SiswaTable: React.FC<SiswaTableProps> = ({ siswaData, sortOrder, onSortToggle }) => {
+const SiswaTable: React.FC<SiswaTableProps> = ({
+    siswaData,
+    sortOrder,
+    onSortToggle,
+    totalData,
+    currentPage,
+    itemsPerPage,
+}) => {
+
+    const offset = (currentPage - 1) * itemsPerPage;
+
     return (
         <div className="w-full max-h-full overflow-y-auto overflow-x-auto border-gray-300">
             <table className="min-w-full bg-white border-collapse">
@@ -37,7 +50,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({ siswaData, sortOrder, onSortTog
                         <th className="px-4 py-2 border-b border-gray-300 text-center">
                             <div className="flex items-center justify-center">
                                 <span>Nama</span>
-                                <button onClick={onSortToggle} className="ml-2">
+                                <button onClick={onSortToggle} className="ml-2 cursor-pointer">
                                     {sortOrder === "asc" ? <FaArrowDownShortWide /> : <FaArrowUpShortWide />}
                                 </button>
                             </div>
@@ -52,7 +65,13 @@ const SiswaTable: React.FC<SiswaTableProps> = ({ siswaData, sortOrder, onSortTog
                 <tbody>
                     {siswaData.map((siswa, index) => (
                         <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} text-gray-700`}>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">{index + 1}</td>
+                            {/* Hitung nomor urut berdasarkan sortOrder */}
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">
+                                {sortOrder === "asc"
+                                    ? offset + index + 1 // Ascending: 1, 2, 3, ...
+                                    : totalData - (offset + index) // Descending: 10.000, 9.999, 9.998, ...
+                                }
+                            </td>
                             <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_siswa}</td>
                             <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nis}</td>
                             <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nisn}</td>
@@ -70,6 +89,5 @@ const SiswaTable: React.FC<SiswaTableProps> = ({ siswaData, sortOrder, onSortTog
         </div>
     );
 };
-
 
 export default SiswaTable;

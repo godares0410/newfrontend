@@ -45,6 +45,7 @@ export default function Siswa() {
     const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
     const itemsPerPage = 100;
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+    const [total, setTotal] = useState(0);
 
     const menuData = {
         icon: "/img/aplikasi/Siswa.svg",
@@ -71,6 +72,7 @@ export default function Siswa() {
 
                 const dataSiswa = response.data.data_siswa || [];
                 setSiswaData(dataSiswa);
+                setTotal(response.data.total); // Simpan total data dari respons API
                 setTotalPages(Math.ceil(response.data.total / itemsPerPage));
 
                 const warnaEkskul = dataSiswa.flatMap(siswa =>
@@ -96,7 +98,7 @@ export default function Siswa() {
         };
 
         fetchData();
-    }, [currentPage, searchQuery, sortOrder]); // Tambahkan sortOrder ke dependency array
+    }, [currentPage, searchQuery, sortOrder]);
 
     // Fungsi untuk mengubah urutan pengurutan
     const toggleSortOrder = () => {
@@ -196,6 +198,9 @@ export default function Siswa() {
                             siswaData={siswaData}
                             sortOrder={sortOrder}
                             onSortToggle={toggleSortOrder}
+                            totalData={total} // Kirim total data ke SiswaTable
+                            currentPage={currentPage} // Kirim currentPage ke SiswaTable
+                            itemsPerPage={itemsPerPage} // Kirim itemsPerPage ke SiswaTable
                         />
                     )}
                 </div>
