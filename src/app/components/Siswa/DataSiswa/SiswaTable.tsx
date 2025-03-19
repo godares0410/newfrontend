@@ -29,34 +29,36 @@ type SiswaTableProps = {
 
 const SiswaTable: React.FC<SiswaTableProps> = ({ siswaData, sortOrder, onSortToggle }) => {
     return (
-        <div className="w-full overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
-                <thead>
-                    <tr className="bg-slate-100">
-                        <th className="px-4 py-2 border-b border-slate-200 text-center">No</th>
-                        <th className="px-4 py-2 border-b border-slate-200 text-center flex items-center justify-center">
-                            <span>Nama</span>
-                            <button onClick={onSortToggle} className="ml-2">
-                                {sortOrder === "asc" ? <FaArrowDownShortWide /> : <FaArrowUpShortWide />}
-                            </button>
+        <div className="w-full max-h-full overflow-y-auto overflow-x-auto border-gray-300">
+            <table className="min-w-full bg-white border-collapse">
+                <thead className="sticky top-0 bg-slate-100 z-50 shadow-sm">
+                    <tr>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">No</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">
+                            <div className="flex items-center justify-center">
+                                <span>Nama</span>
+                                <button onClick={onSortToggle} className="ml-2">
+                                    {sortOrder === "asc" ? <FaArrowDownShortWide /> : <FaArrowUpShortWide />}
+                                </button>
+                            </div>
                         </th>
-                        <th className="px-4 py-2 border-b border-slate-200 text-center">NIS</th>
-                        <th className="px-4 py-2 border-b border-slate-200 text-center">NISN</th>
-                        <th className="px-4 py-2 border-b border-slate-200 text-center">Kelas</th>
-                        <th className="px-4 py-2 border-b border-slate-200 text-center">Rombel</th>
-                        <th className="px-4 py-2 border-b border-slate-200 text-center">Ekskul</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">NIS</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">NISN</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">Kelas</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">Rombel</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">Ekskul</th>
                     </tr>
                 </thead>
                 <tbody>
                     {siswaData.map((siswa, index) => (
-                        <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-slate-50"} text-slate-600`}>
-                            <td className="px-4 py-2 border-b border-slate-200 text-center">{index + 1}</td>
-                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nama_siswa}</td>
-                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nis}</td>
-                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nisn}</td>
-                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nama_kelas}</td>
-                            <td className="px-4 py-2 border-b border-slate-200 text-center">{siswa.nama_rombel}</td>
-                            <td className="px-4 py-2 border-b border-slate-200 text-center">
+                        <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} text-gray-700`}>
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">{index + 1}</td>
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_siswa}</td>
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nis}</td>
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nisn}</td>
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_kelas}</td>
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_rombel}</td>
+                            <td className="px-4 py-2 border-b border-gray-300 text-center">
                                 {siswa.ekskul.map((e, i) => (
                                     <span key={i} className="mr-1">{e.nama}</span>
                                 ))}
@@ -68,5 +70,6 @@ const SiswaTable: React.FC<SiswaTableProps> = ({ siswaData, sortOrder, onSortTog
         </div>
     );
 };
+
 
 export default SiswaTable;
