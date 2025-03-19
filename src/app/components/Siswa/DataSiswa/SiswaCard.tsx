@@ -1,6 +1,4 @@
 // SiswaCard.tsx
-"use client";
-
 import Image from "next/image";
 
 // Definisi tipe data untuk Siswa

@@ -44,6 +44,7 @@ export default function Siswa() {
     const [totalPages, setTotalPages] = useState(1);
     const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
     const itemsPerPage = 100;
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
     const menuData = {
         icon: "/img/aplikasi/Siswa.svg",
@@ -63,26 +64,25 @@ export default function Siswa() {
                     params: {
                         page: currentPage,
                         search: searchQuery,
+                        sort: "nama_siswa", // Kolom yang diurutkan
+                        order: sortOrder, // Urutan (asc atau desc)
                     },
                 });
-    
-                // Pastikan data_siswa selalu berupa array
+
                 const dataSiswa = response.data.data_siswa || [];
-    
                 setSiswaData(dataSiswa);
                 setTotalPages(Math.ceil(response.data.total / itemsPerPage));
-    
-                // Pastikan flatMap tidak error dengan memastikan dataSiswa adalah array
+
                 const warnaEkskul = dataSiswa.flatMap(siswa =>
                     siswa.ekskul.map(e => ({ nama: e.nama, warna: e.warna }))
                 );
-    
+
                 const uniqueWarnaEkskul = Array.from(new Set(warnaEkskul.map(e => e.nama)))
                     .map(nama => {
                         return warnaEkskul.find(e => e.nama === nama);
                     })
                     .filter((e): e is Ekskul => e !== undefined);
-    
+
                 setEkskulData(uniqueWarnaEkskul);
                 setIsLoading(false);
             } catch (err) {
@@ -94,9 +94,14 @@ export default function Siswa() {
                 setIsLoading(false);
             }
         };
-    
+
         fetchData();
-    }, [currentPage, searchQuery]);
+    }, [currentPage, searchQuery, sortOrder]); // Tambahkan sortOrder ke dependency array
+
+    // Fungsi untuk mengubah urutan pengurutan
+    const toggleSortOrder = () => {
+        setSortOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -187,7 +192,11 @@ export default function Siswa() {
                             ))}
                         </div>
                     ) : (
-                        <SiswaTable siswaData={siswaData} />
+                        <SiswaTable
+                            siswaData={siswaData}
+                            sortOrder={sortOrder}
+                            onSortToggle={toggleSortOrder}
+                        />
                     )}
                 </div>
             </div>
