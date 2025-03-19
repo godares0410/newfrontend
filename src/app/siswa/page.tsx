@@ -1,3 +1,4 @@
+// Siswa.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -41,10 +42,9 @@ export default function Siswa() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [totalPages, setTotalPages] = useState(1);
-    const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban"); // Tambahkan state untuk mode tampilan
+    const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
     const itemsPerPage = 100;
 
-    // Data menu untuk Header
     const menuData = {
         icon: "/img/aplikasi/Siswa.svg",
         label: "Siswa",
@@ -65,19 +65,24 @@ export default function Siswa() {
                         search: searchQuery,
                     },
                 });
-                setSiswaData(response.data.data_siswa);
-                setTotalPages(Math.ceil(response.data.total / itemsPerPage)); // Hitung total halaman
-
-                const warnaEkskul = response.data.data_siswa.flatMap(siswa =>
+    
+                // Pastikan data_siswa selalu berupa array
+                const dataSiswa = response.data.data_siswa || [];
+    
+                setSiswaData(dataSiswa);
+                setTotalPages(Math.ceil(response.data.total / itemsPerPage));
+    
+                // Pastikan flatMap tidak error dengan memastikan dataSiswa adalah array
+                const warnaEkskul = dataSiswa.flatMap(siswa =>
                     siswa.ekskul.map(e => ({ nama: e.nama, warna: e.warna }))
                 );
-
+    
                 const uniqueWarnaEkskul = Array.from(new Set(warnaEkskul.map(e => e.nama)))
                     .map(nama => {
                         return warnaEkskul.find(e => e.nama === nama);
                     })
                     .filter((e): e is Ekskul => e !== undefined);
-
+    
                 setEkskulData(uniqueWarnaEkskul);
                 setIsLoading(false);
             } catch (err) {
@@ -89,9 +94,9 @@ export default function Siswa() {
                 setIsLoading(false);
             }
         };
-
+    
         fetchData();
-    }, [currentPage, searchQuery]); // Fetch data saat halaman atau pencarian berubah
+    }, [currentPage, searchQuery]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -145,8 +150,8 @@ export default function Siswa() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 setCurrentPage={handlePageChange}
-                viewMode={viewMode} // Tambahkan viewMode ke Nav
-                setViewMode={setViewMode} // Tambahkan setViewMode ke Nav
+                viewMode={viewMode}
+                setViewMode={setViewMode}
             />
             <div className="flex-1 flex w-full overflow-hidden">
                 <div className={`h-full bg-red-200 transition-all duration-300 ${isCollapsed ? "w-5" : "w-62"} hidden md:block`}>
@@ -159,8 +164,11 @@ export default function Siswa() {
                     </div>
                 </div>
                 <div className="w-full h-full p-4 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
-                    {viewMode === "kanban" ? (
-                        // Tampilan Kanban
+                    {siswaData.length === 0 ? (
+                        <div className="flex justify-center items-center h-full">
+                            <p className="text-slate-500 text-xl">Data Tidak Ditemukan</p>
+                        </div>
+                    ) : viewMode === "kanban" ? (
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full">
                             {siswaData.map((siswa, index) => (
                                 <SiswaCard
