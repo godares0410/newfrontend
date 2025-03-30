@@ -33,6 +33,11 @@ type Ekskul = {
     warna: string;
 };
 
+type SortConfig = {
+    key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas';
+    order: 'asc' | 'desc';
+};
+
 export default function Siswa() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -44,8 +49,11 @@ export default function Siswa() {
     const [totalPages, setTotalPages] = useState(1);
     const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
     const itemsPerPage = 100;
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
     const [total, setTotal] = useState(0);
+    const [sortConfig, setSortConfig] = useState<SortConfig>({
+        key: 'nama_siswa',
+        order: 'asc'
+    });
 
     const menuData = {
         icon: "/img/aplikasi/Siswa.svg",
@@ -58,6 +66,21 @@ export default function Siswa() {
         ],
     };
 
+    const handleSort = (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas') => {
+        setSortConfig(prev => {
+            if (prev.key === key) {
+                return {
+                    key,
+                    order: prev.order === 'asc' ? 'desc' : 'asc'
+                };
+            }
+            return {
+                key,
+                order: 'asc'
+            };
+        });
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -65,14 +88,14 @@ export default function Siswa() {
                     params: {
                         page: currentPage,
                         search: searchQuery,
-                        sort: "nama_siswa", // Kolom yang diurutkan
-                        order: sortOrder, // Urutan (asc atau desc)
+                        sort: sortConfig.key,
+                        order: sortConfig.order,
                     },
                 });
 
                 const dataSiswa = response.data.data_siswa || [];
                 setSiswaData(dataSiswa);
-                setTotal(response.data.total); // Simpan total data dari respons API
+                setTotal(response.data.total);
                 setTotalPages(Math.ceil(response.data.total / itemsPerPage));
 
                 const warnaEkskul = dataSiswa.flatMap(siswa =>
@@ -98,12 +121,7 @@ export default function Siswa() {
         };
 
         fetchData();
-    }, [currentPage, searchQuery, sortOrder]);
-
-    // Fungsi untuk mengubah urutan pengurutan
-    const toggleSortOrder = () => {
-        setSortOrder(prevOrder => (prevOrder === "asc" ? "desc" : "asc"));
-    };
+    }, [currentPage, searchQuery, sortConfig]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -196,11 +214,11 @@ export default function Siswa() {
                     ) : (
                         <SiswaTable
                             siswaData={siswaData}
-                            sortOrder={sortOrder}
-                            onSortToggle={toggleSortOrder}
-                            totalData={total} // Kirim total data ke SiswaTable
-                            currentPage={currentPage} // Kirim currentPage ke SiswaTable
-                            itemsPerPage={itemsPerPage} // Kirim itemsPerPage ke SiswaTable
+                            sortConfig={sortConfig}
+                            onSort={handleSort}
+                            totalData={total}
+                            currentPage={currentPage}
+                            itemsPerPage={itemsPerPage}
                         />
                     )}
                 </div>

@@ -1,6 +1,6 @@
 // components/Siswa/DataSiswa/SiswaTable.tsx
 import React from 'react';
-import { FaArrowDownShortWide, FaArrowUpShortWide } from "react-icons/fa6";
+import { FaArrowDownShortWide, FaArrowUpShortWide, FaSort } from "react-icons/fa6";
 
 type Siswa = {
     id_siswa: number;
@@ -21,43 +21,101 @@ type Siswa = {
     ekskul: { nama: string; warna: string }[];
 };
 
+type SortConfig = {
+    key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas';
+    order: 'asc' | 'desc';
+};
+
 type SiswaTableProps = {
     siswaData: Siswa[];
-    sortOrder: "asc" | "desc";
-    onSortToggle: () => void;
-    totalData: number; // Total data dari database
-    currentPage: number; // Halaman saat ini
-    itemsPerPage: number; // Jumlah data per halaman
+    sortConfig: SortConfig;
+    onSort: (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas') => void;
+    totalData: number;
+    currentPage: number;
+    itemsPerPage: number;
 };
 
 const SiswaTable: React.FC<SiswaTableProps> = ({
     siswaData,
-    sortOrder,
-    onSortToggle,
+    sortConfig,
+    onSort,
     totalData,
     currentPage,
     itemsPerPage,
 }) => {
-
     const offset = (currentPage - 1) * itemsPerPage;
 
+    const getNumbering = (index: number) => {
+        if (sortConfig.order === "asc") {
+            return offset + index + 1;
+        } else {
+            return totalData - offset - index;
+        }
+    };
+
+    const renderSortIcon = (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas') => {
+        if (sortConfig.key === key) {
+            return sortConfig.order === "asc" ? 
+                <FaArrowDownShortWide className="text-blue-500 cursor-pointer" /> : 
+                <FaArrowUpShortWide className="text-blue-500 cursor-pointer" />;
+        }
+        return <FaSort className="text-gray-400 cursor-pointer" />;
+    };
+
     return (
-        <div className="w-full max-h-full overflow-y-auto overflow-x-auto border-gray-300">
+        <div className="w-full max-h-full overflow-y-auto overflow-x-auto border-gray-300 rounded-md">
             <table className="min-w-full bg-white border-collapse">
                 <thead className="sticky top-0 bg-slate-100 z-50 shadow-sm">
                     <tr>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">No</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">
+                            <div className="flex items-center justify-center">
+                                <span>No</span>
+                            </div>
+                        </th>
                         <th className="px-4 py-2 border-b border-gray-300 text-center">
                             <div className="flex items-center justify-center">
                                 <span>Nama</span>
-                                <button onClick={onSortToggle} className="ml-2 cursor-pointer">
-                                    {sortOrder === "asc" ? <FaArrowDownShortWide /> : <FaArrowUpShortWide />}
+                                <button 
+                                    onClick={() => onSort('nama_siswa')} 
+                                    className="ml-2 flex items-center"
+                                >
+                                    {renderSortIcon('nama_siswa')}
                                 </button>
                             </div>
                         </th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">NIS</th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">NISN</th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">Kelas</th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">
+                            <div className="flex items-center justify-center">
+                                <span>NIS</span>
+                                <button 
+                                    onClick={() => onSort('nis')} 
+                                    className="ml-2 flex items-center"
+                                >
+                                    {renderSortIcon('nis')}
+                                </button>
+                            </div>
+                        </th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">
+                            <div className="flex items-center justify-center">
+                                <span>NISN</span>
+                                <button 
+                                    onClick={() => onSort('nisn')} 
+                                    className="ml-2 flex items-center"
+                                >
+                                    {renderSortIcon('nisn')}
+                                </button>
+                            </div>
+                        </th>
+                        <th className="px-4 py-2 border-b border-gray-300 text-center">
+                            <div className="flex items-center justify-center">
+                                <span>Kelas</span>
+                                <button 
+                                    onClick={() => onSort('nama_kelas')} 
+                                    className="ml-2 flex items-center"
+                                >
+                                    {renderSortIcon('nama_kelas')}
+                                </button>
+                            </div>
+                        </th>
                         <th className="px-4 py-2 border-b border-gray-300 text-center">Rombel</th>
                         <th className="px-4 py-2 border-b border-gray-300 text-center">Ekskul</th>
                     </tr>
@@ -65,12 +123,8 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                 <tbody>
                     {siswaData.map((siswa, index) => (
                         <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} text-gray-700`}>
-                            {/* Hitung nomor urut berdasarkan sortOrder */}
                             <td className="px-4 py-2 border-b border-gray-300 text-center">
-                                {sortOrder === "asc"
-                                    ? offset + index + 1 // Ascending: 1, 2, 3, ...
-                                    : totalData - (offset + index) // Descending: 10.000, 9.999, 9.998, ...
-                                }
+                                {getNumbering(index)}
                             </td>
                             <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_siswa}</td>
                             <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nis}</td>
