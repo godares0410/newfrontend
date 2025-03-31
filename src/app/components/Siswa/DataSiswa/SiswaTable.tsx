@@ -1,6 +1,8 @@
 // components/Siswa/DataSiswa/SiswaTable.tsx
-import React from 'react';
-import { FaArrowDownShortWide, FaArrowUpShortWide, FaSort } from "react-icons/fa6";
+import React, { useState, useEffect } from 'react';
+import { FaArrowDownShortWide, FaArrowUpShortWide, FaSort, FaArrowRightLong, FaPencil } from "react-icons/fa6";
+import { MdArchive } from "react-icons/md";
+import { RiFileExcel2Fill } from "react-icons/ri";
 
 type Siswa = {
     id_siswa: number;
@@ -22,14 +24,14 @@ type Siswa = {
 };
 
 type SortConfig = {
-    key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas';
+    key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel';
     order: 'asc' | 'desc';
 };
 
 type SiswaTableProps = {
     siswaData: Siswa[];
     sortConfig: SortConfig;
-    onSort: (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas') => void;
+    onSort: (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel') => void;
     totalData: number;
     currentPage: number;
     itemsPerPage: number;
@@ -43,103 +45,233 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     currentPage,
     itemsPerPage,
 }) => {
-    const offset = (currentPage - 1) * itemsPerPage;
+    const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+    const [selectAll, setSelectAll] = useState(false);
+
+    // Update selectAll state when selection changes
+    useEffect(() => {
+        const allVisibleIds = new Set(siswaData.map(siswa => siswa.id_siswa));
+        const allVisibleSelected = Array.from(selectedRows).every(id => allVisibleIds.has(id));
+        
+        if (allVisibleIds.size > 0 && selectedRows.size > 0) {
+            const isAllVisibleSelected = Array.from(allVisibleIds).every(id => selectedRows.has(id));
+            setSelectAll(isAllVisibleSelected);
+        } else {
+            setSelectAll(false);
+        }
+    }, [selectedRows, siswaData]);
 
     const getNumbering = (index: number) => {
         if (sortConfig.order === "asc") {
-            return offset + index + 1;
+            return (currentPage - 1) * itemsPerPage + index + 1;
         } else {
-            return totalData - offset - index;
+            return totalData - (currentPage - 1) * itemsPerPage - index;
         }
     };
 
-    const renderSortIcon = (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas') => {
+    const renderSortIcon = (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel') => {
         if (sortConfig.key === key) {
-            return sortConfig.order === "asc" ? 
-                <FaArrowDownShortWide className="text-blue-500 cursor-pointer" /> : 
+            return sortConfig.order === "asc" ?
+                <FaArrowDownShortWide className="text-blue-500 cursor-pointer" /> :
                 <FaArrowUpShortWide className="text-blue-500 cursor-pointer" />;
         }
         return <FaSort className="text-gray-400 cursor-pointer" />;
     };
 
+    const handleRowSelect = (id: number) => {
+        const newSelectedRows = new Set(selectedRows);
+        if (newSelectedRows.has(id)) {
+            newSelectedRows.delete(id);
+        } else {
+            newSelectedRows.add(id);
+        }
+        setSelectedRows(newSelectedRows);
+    };
+
+    const handleSelectAllVisible = () => {
+        const allVisibleIds = new Set(siswaData.map(siswa => siswa.id_siswa));
+        
+        if (selectAll) {
+            // Deselect all visible
+            const newSelectedRows = new Set(selectedRows);
+            allVisibleIds.forEach(id => newSelectedRows.delete(id));
+            setSelectedRows(newSelectedRows);
+        } else {
+            // Select all visible
+            const newSelectedRows = new Set(selectedRows);
+            allVisibleIds.forEach(id => newSelectedRows.add(id));
+            setSelectedRows(newSelectedRows);
+        }
+    };
+
+    const handleSelectAllData = () => {
+        // In a real implementation, you would fetch all IDs from the server
+        // For now, we'll just select all visible data
+        const allVisibleIds = siswaData.map(siswa => siswa.id_siswa);
+        const newSelectedRows = new Set(selectedRows);
+        
+        allVisibleIds.forEach(id => newSelectedRows.add(id));
+        setSelectedRows(newSelectedRows);
+    };
+
+    const handleExport = () => {
+        console.log("Exporting selected data:", Array.from(selectedRows));
+    };
+
+    const handleEdit = () => {
+        console.log("Editing selected data:", Array.from(selectedRows));
+    };
+
+    const handleArchive = () => {
+        console.log("Archiving selected data:", Array.from(selectedRows));
+    };
+
     return (
-        <div className="w-full max-h-full overflow-y-auto overflow-x-auto border-gray-300 rounded-md">
-            <table className="min-w-full bg-white border-collapse">
-                <thead className="sticky top-0 bg-slate-100 z-50 shadow-sm">
-                    <tr>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">
-                            <div className="flex items-center justify-center">
-                                <span>No</span>
-                            </div>
-                        </th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">
-                            <div className="flex items-center justify-center">
-                                <span>Nama</span>
-                                <button 
-                                    onClick={() => onSort('nama_siswa')} 
-                                    className="ml-2 flex items-center"
+        <div className='w-full max-h-full overflow-auto'>
+            {/* Action Bar */}
+            <div className="h-10 sticky top-0 z-50 bg-cyan-100 flex items-center p-2">
+                <div className="flex gap-2">
+                    {selectedRows.size > 0 && (
+                        <>
+                            <div className="p-1 bg-emerald-300 rounded-lg flex gap-2">
+                                <div className="text-sm flex items-center text-slate-600">
+                                    {selectedRows.size} Terseleksi
+                                </div>
+                                <div 
+                                    className="text-sm flex items-center gap-1 bg-emerald-700 px-2 text-slate-100 rounded-2xl cursor-pointer"
+                                    onClick={handleSelectAllData}
                                 >
-                                    {renderSortIcon('nama_siswa')}
-                                </button>
+                                    <FaArrowRightLong /> Pilih Semua {totalData}
+                                </div>
                             </div>
-                        </th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">
-                            <div className="flex items-center justify-center">
-                                <span>NIS</span>
-                                <button 
-                                    onClick={() => onSort('nis')} 
-                                    className="ml-2 flex items-center"
-                                >
-                                    {renderSortIcon('nis')}
-                                </button>
+                            <div 
+                                className="text-slate-600 cursor-pointer text-sm p-1 bg-emerald-300 rounded-lg flex gap-1 items-center"
+                                onClick={handleExport}
+                            >
+                                <RiFileExcel2Fill />Export
                             </div>
-                        </th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">
-                            <div className="flex items-center justify-center">
-                                <span>NISN</span>
-                                <button 
-                                    onClick={() => onSort('nisn')} 
-                                    className="ml-2 flex items-center"
-                                >
-                                    {renderSortIcon('nisn')}
-                                </button>
+                            <div 
+                                className="text-slate-600 cursor-pointer text-sm p-1 bg-cyan-300 rounded-lg flex gap-1 items-center"
+                                onClick={handleEdit}
+                            >
+                                <FaPencil />Edit
                             </div>
-                        </th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">
-                            <div className="flex items-center justify-center">
-                                <span>Kelas</span>
-                                <button 
-                                    onClick={() => onSort('nama_kelas')} 
-                                    className="ml-2 flex items-center"
-                                >
-                                    {renderSortIcon('nama_kelas')}
-                                </button>
+                            <div 
+                                className="text-slate-600 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center"
+                                onClick={handleArchive}
+                            >
+                                <MdArchive />Arsipkan
                             </div>
-                        </th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">Rombel</th>
-                        <th className="px-4 py-2 border-b border-gray-300 text-center">Ekskul</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {siswaData.map((siswa, index) => (
-                        <tr key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} text-gray-700`}>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">
-                                {getNumbering(index)}
-                            </td>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_siswa}</td>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nis}</td>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nisn}</td>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_kelas}</td>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_rombel}</td>
-                            <td className="px-4 py-2 border-b border-gray-300 text-center">
-                                {siswa.ekskul.map((e, i) => (
-                                    <span key={i} className="mr-1">{e.nama}</span>
-                                ))}
-                            </td>
+                        </>
+                    )}
+                </div>
+            </div>
+            {/* End Action Bar */}
+            <div className="border-gray-300 border">
+                <table className="min-w-full bg-white border-collapse">
+                    <thead className="sticky top-10 bg-slate-100 z-40 shadow-sm">
+                        <tr>
+                            <th className="px-4 py-2 border-b border-gray-300 text-center">
+                                <div className="flex items-center justify-center">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectAll}
+                                        onChange={handleSelectAllVisible}
+                                        className="mr-2"
+                                    />
+                                    <span>No</span>
+                                </div>
+                            </th>
+                            <th className="px-4 py-2 border-b border-gray-300 text-center">
+                                <div className="flex items-center justify-center">
+                                    <span>Nama</span>
+                                    <button
+                                        onClick={() => onSort('nama_siswa')}
+                                        className="ml-2 flex items-center"
+                                    >
+                                        {renderSortIcon('nama_siswa')}
+                                    </button>
+                                </div>
+                            </th>
+                            <th className="px-4 py-2 border-b border-gray-300 text-center">
+                                <div className="flex items-center justify-center">
+                                    <span>NIS</span>
+                                    <button
+                                        onClick={() => onSort('nis')}
+                                        className="ml-2 flex items-center"
+                                    >
+                                        {renderSortIcon('nis')}
+                                    </button>
+                                </div>
+                            </th>
+                            <th className="px-4 py-2 border-b border-gray-300 text-center">
+                                <div className="flex items-center justify-center">
+                                    <span>NISN</span>
+                                    <button
+                                        onClick={() => onSort('nisn')}
+                                        className="ml-2 flex items-center"
+                                    >
+                                        {renderSortIcon('nisn')}
+                                    </button>
+                                </div>
+                            </th>
+                            <th className="px-4 py-2 border-b border-gray-300 text-center">
+                                <div className="flex items-center justify-center">
+                                    <span>Kelas</span>
+                                    <button
+                                        onClick={() => onSort('nama_kelas')}
+                                        className="ml-2 flex items-center"
+                                    >
+                                        {renderSortIcon('nama_kelas')}
+                                    </button>
+                                </div>
+                            </th>
+                            <th className="px-4 py-2 border-b border-gray-300 text-center">
+                                <div className="flex items-center justify-center">
+                                    <span>Rombel</span>
+                                    <button
+                                        onClick={() => onSort('nama_rombel')}
+                                        className="ml-2 flex items-center"
+                                    >
+                                        {renderSortIcon('nama_rombel')}
+                                    </button>
+                                </div>
+                            </th>
+                            <th className="px-4 py-2 border-b border-gray-300 text-center">Ekskul</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {siswaData.map((siswa, index) => (
+                            <tr 
+                                key={siswa.id_siswa} 
+                                className={`${index % 2 === 0 ? "bg-white" : "bg-gray-100"} text-gray-700`}
+                            >
+                                <td className="px-4 py-2 border-b border-gray-300 text-center">
+                                    <div className="flex items-center justify-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedRows.has(siswa.id_siswa)}
+                                            onChange={() => handleRowSelect(siswa.id_siswa)}
+                                            className="mr-2"
+                                        />
+                                        {getNumbering(index)}
+                                    </div>
+                                </td>
+                                <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_siswa}</td>
+                                <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nis}</td>
+                                <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nisn}</td>
+                                <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_kelas}</td>
+                                <td className="px-4 py-2 border-b border-gray-300 text-center">{siswa.nama_rombel}</td>
+                                <td className="px-4 py-2 border-b border-gray-300 text-center">
+                                    {siswa.ekskul.map((e, i) => (
+                                        <span key={i} className="mr-1">{e.nama}</span>
+                                    ))}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

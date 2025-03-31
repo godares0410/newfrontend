@@ -34,7 +34,7 @@ type Ekskul = {
 };
 
 type SortConfig = {
-    key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas';
+    key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel';
     order: 'asc' | 'desc';
 };
 
@@ -66,7 +66,7 @@ export default function Siswa() {
         ],
     };
 
-    const handleSort = (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas') => {
+    const handleSort = (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel') => {
         setSortConfig(prev => {
             if (prev.key === key) {
                 return {
@@ -188,13 +188,13 @@ export default function Siswa() {
                         )}
                     </div>
                 </div>
-                <div className="w-full h-full p-4 overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
+                <div className="px-4 w-full h-full overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                     {siswaData.length === 0 ? (
                         <div className="flex justify-center items-center h-full">
                             <p className="text-slate-500 text-xl">Data Tidak Ditemukan</p>
                         </div>
                     ) : viewMode === "kanban" ? (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full h-full py-4">
                             {siswaData.map((siswa, index) => (
                                 <SiswaCard
                                     key={index}
@@ -212,14 +212,16 @@ export default function Siswa() {
                             ))}
                         </div>
                     ) : (
-                        <SiswaTable
-                            siswaData={siswaData}
-                            sortConfig={sortConfig}
-                            onSort={handleSort}
-                            totalData={total}
-                            currentPage={currentPage}
-                            itemsPerPage={itemsPerPage}
-                        />
+                        <div className="w-full h-full pb-4">
+                            <SiswaTable
+                                siswaData={siswaData}
+                                sortConfig={sortConfig}
+                                onSort={handleSort}
+                                totalData={total}
+                                currentPage={currentPage}
+                                itemsPerPage={itemsPerPage}
+                            />
+                        </div>
                     )}
                 </div>
             </div>
