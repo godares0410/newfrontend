@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaArrowDownShortWide, FaArrowUpShortWide, FaSort, FaArrowRightLong, FaPencil } from "react-icons/fa6";
 import { MdArchive } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
+import { IoIosClose } from "react-icons/io";
 
 type Siswa = {
     id_siswa: number;
@@ -114,6 +115,10 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
         setSelectedRows(newSelectedRows);
     };
 
+    const handleClearSelection = () => {
+        setSelectedRows(new Set());
+    };
+
     const handleExport = () => {
         console.log("Exporting selected data:", Array.from(selectedRows));
     };
@@ -128,48 +133,50 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
 
     return (
         <div className='w-full max-h-full overflow-auto'>
-            {/* Action Bar */}
-            <div className="h-10 sticky top-0 z-50 bg-cyan-100 flex items-center p-2">
-                <div className="flex gap-2">
-                    {selectedRows.size > 0 && (
-                        <>
-                            <div className="p-1 bg-emerald-300 rounded-lg flex gap-2">
-                                <div className="text-sm flex items-center text-slate-600">
-                                    {selectedRows.size} Terseleksi
-                                </div>
-                                <div 
-                                    className="text-sm flex items-center gap-1 bg-emerald-700 px-2 text-slate-100 rounded-2xl cursor-pointer"
-                                    onClick={handleSelectAllData}
-                                >
-                                    <FaArrowRightLong /> Pilih Semua {totalData}
-                                </div>
+            {/* Action Bar - Only visible when there are selected rows */}
+            {selectedRows.size > 0 && (
+                <div className="h-10 sticky top-0 z-50 bg-cyan-100 flex items-center p-2">
+                    <div className="flex gap-2">
+                        <div className="p-1 bg-emerald-300 rounded-lg flex gap-1 items-center">
+                            <div className="text-sm flex items-center text-slate-600">
+                                {selectedRows.size} Terseleksi
                             </div>
                             <div 
-                                className="text-slate-600 cursor-pointer text-sm p-1 bg-emerald-300 rounded-lg flex gap-1 items-center"
-                                onClick={handleExport}
+                                className="text-sm flex items-center gap-1 bg-emerald-700 px-2 text-slate-100 rounded-2xl cursor-pointer"
+                                onClick={handleSelectAllData}
                             >
-                                <RiFileExcel2Fill />Export
+                                <FaArrowRightLong /> Pilih Semua {totalData}
                             </div>
-                            <div 
-                                className="text-slate-600 cursor-pointer text-sm p-1 bg-cyan-300 rounded-lg flex gap-1 items-center"
-                                onClick={handleEdit}
-                            >
-                                <FaPencil />Edit
-                            </div>
-                            <div 
-                                className="text-slate-600 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center"
-                                onClick={handleArchive}
-                            >
-                                <MdArchive />Arsipkan
-                            </div>
-                        </>
-                    )}
+                            <IoIosClose 
+                                className="text-xl font-bold text-slate-600 cursor-pointer" 
+                                onClick={handleClearSelection}
+                            />
+                        </div>
+                        <div 
+                            className="text-slate-600 cursor-pointer text-sm p-1 bg-emerald-300 rounded-lg flex gap-1 items-center"
+                            onClick={handleExport}
+                        >
+                            <RiFileExcel2Fill />Export
+                        </div>
+                        <div 
+                            className="text-slate-600 cursor-pointer text-sm p-1 bg-cyan-300 rounded-lg flex gap-1 items-center"
+                            onClick={handleEdit}
+                        >
+                            <FaPencil />Edit
+                        </div>
+                        <div 
+                            className="text-slate-600 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center"
+                            onClick={handleArchive}
+                        >
+                            <MdArchive />Arsipkan
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
             {/* End Action Bar */}
             <div className="border-gray-300 border">
                 <table className="min-w-full bg-white border-collapse">
-                    <thead className="sticky top-10 bg-slate-100 z-40 shadow-sm">
+                    <thead className={`sticky ${selectedRows.size > 0 ? 'top-10' : 'top-0'} bg-slate-100 z-40 shadow-sm`}>
                         <tr>
                             <th className="px-4 py-2 border-b border-gray-300 text-center">
                                 <div className="flex items-center justify-center">
