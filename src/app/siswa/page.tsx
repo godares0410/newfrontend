@@ -8,35 +8,7 @@ import Header from "../components/Header";
 import Nav from "../components/Nav";
 import SiswaCard from "../components/Siswa/DataSiswa/SiswaCard";
 import SiswaTable from "../components/Siswa/DataSiswa/SiswaTable";
-
-type Siswa = {
-    id_siswa: number;
-    kode_siswa: string;
-    nisn: string;
-    nis: string;
-    nama_siswa: string;
-    jenis_kelamin: string;
-    tahun_masuk: number;
-    foto: string;
-    status: string;
-    id_sekolah: number;
-    created_at: string;
-    updated_at: string;
-    nama_kelas: string;
-    nama_jurusan: string;
-    nama_rombel: string;
-    ekskul: { nama: string; warna: string }[];
-};
-
-type Ekskul = {
-    nama: string;
-    warna: string;
-};
-
-type SortConfig = {
-    key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel';
-    order: 'asc' | 'desc';
-};
+import type { Siswa, Ekskul, SortConfig } from "@/app/components/types/siswa";
 
 export default function Siswa() {
     const [isCollapsed, setIsCollapsed] = useState(false);
