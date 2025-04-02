@@ -17,7 +17,6 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
     const [selectAll, setSelectAll] = useState(false);
 
-    // Update selectAll state when selection changes
     useEffect(() => {
         const allVisibleIds = new Set(siswaData.map(siswa => siswa.id_siswa));
         const allVisibleSelected = Array.from(selectedRows).every(id => allVisibleIds.has(id));
@@ -74,8 +73,6 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     };
 
     const handleSelectAllData = () => {
-        // In a real implementation, you would fetch all IDs from the server
-        // For now, we'll just select all visible data
         const allVisibleIds = siswaData.map(siswa => siswa.id_siswa);
         const newSelectedRows = new Set(selectedRows);
         

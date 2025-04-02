@@ -1,13 +1,12 @@
-// Siswa.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { FaAngleDoubleLeft, FaAngleDoubleRight } from "react-icons/fa";
-import Header from "../components/Header";
-import Nav from "../components/Nav";
-import SiswaCard from "../components/Siswa/DataSiswa/SiswaCard";
-import SiswaTable from "../components/Siswa/DataSiswa/SiswaTable";
+import Header from "@/app/components/Header";
+import Nav from "@/app/components/Nav";
+import SiswaCard from "@/app/components/Siswa/DataSiswa/SiswaCard";
+import SiswaTable from "@/app/components/Siswa/DataSiswa/SiswaTable";
+import Sidebar from "@/app/components/Siswa/DataSiswa/SiswaSidebar";
 import type { Siswa, Ekskul, SortConfig } from "@/app/components/types/siswa";
 
 export default function Siswa() {
@@ -151,15 +150,7 @@ export default function Siswa() {
                 setViewMode={setViewMode}
             />
             <div className="flex-1 flex w-full overflow-hidden">
-                <div className={`h-full bg-red-200 transition-all duration-300 ${isCollapsed ? "w-5" : "w-62"} hidden md:block`}>
-                    <div className={`flex justify-end ${isCollapsed ? "p-1" : "px-3"}`}>
-                        {isCollapsed ? (
-                            <FaAngleDoubleRight className="mt-3 text-sm cursor-pointer" onClick={() => setIsCollapsed(false)} />
-                        ) : (
-                            <FaAngleDoubleLeft className="mt-3 text-sm cursor-pointer" onClick={() => setIsCollapsed(true)} />
-                        )}
-                    </div>
-                </div>
+                <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
                 <div className="px-4 w-full h-full overflow-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent">
                     {siswaData.length === 0 ? (
                         <div className="flex justify-center items-center h-full">
