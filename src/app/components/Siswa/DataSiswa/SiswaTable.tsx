@@ -1,4 +1,3 @@
-// components/Siswa/DataSiswa/SiswaTable.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import {
@@ -9,7 +8,7 @@ import {
   FaPencil
 } from "react-icons/fa6";
 import { MdArchive } from "react-icons/md";
-import { RiFileExcel2Fill } from "react-icons/ri";
+// import { RiFileExcel2Fill } from "react-icons/ri";
 import { IoIosClose } from "react-icons/io";
 import type { SiswaTableProps } from "@/app/components/types/siswa";
 import ExportButton from "@/app/components/Siswa/DataSiswa/ExportButton";
@@ -22,14 +21,12 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   currentPage,
   itemsPerPage,
 }) => {
-  // State management
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [allIds, setAllIds] = useState<number[]>([]);
   const [isLoadingAllIds, setIsLoadingAllIds] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const checkboxRef = useRef<HTMLInputElement>(null);
 
-  // Fetch all student IDs from API
   const fetchAllStudentIds = useCallback(async () => {
     setIsLoadingAllIds(true);
     setError(null);
@@ -46,12 +43,10 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     }
   }, []);
 
-  // Load IDs on component mount
   useEffect(() => {
     fetchAllStudentIds();
   }, [fetchAllStudentIds]);
 
-  // Update checkbox indeterminate state
   useEffect(() => {
     if (checkboxRef.current) {
       checkboxRef.current.indeterminate =
@@ -61,14 +56,51 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     }
   }, [selectedRows, siswaData]);
 
-  // Helper functions
+  const getSortedData = useCallback(() => {
+    if (!sortConfig.key) return siswaData;
+
+    return [...siswaData].sort((a, b) => {
+      // Special case for nama_kelas + nama_siswa
+      if (sortConfig.key === 'nama_kelas') {
+        const kelasCompare = (a.nama_kelas || '').localeCompare(b.nama_kelas || '');
+        if (kelasCompare !== 0) {
+          return sortConfig.order === 'asc' ? kelasCompare : -kelasCompare;
+        }
+        return (a.nama_siswa || '').localeCompare(b.nama_siswa || '');
+      }
+
+      // Special case for nama_rombel + nama_siswa
+      if (sortConfig.key === 'nama_rombel') {
+        const rombelCompare = (a.nama_rombel || '').localeCompare(b.nama_rombel || '');
+        if (rombelCompare !== 0) {
+          return sortConfig.order === 'asc' ? rombelCompare : -rombelCompare;
+        }
+        return (a.nama_siswa || '').localeCompare(b.nama_siswa || '');
+      }
+
+      // Default sorting for other columns
+      const aValue = a[sortConfig.key as keyof typeof a] || '';
+      const bValue = b[sortConfig.key as keyof typeof b] || '';
+
+      if (aValue < bValue) {
+        return sortConfig.order === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.order === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [siswaData, sortConfig]);
+
+  const sortedData = getSortedData();
+
   const getNumbering = useCallback((index: number) => {
     return sortConfig.order === "asc"
       ? (currentPage - 1) * itemsPerPage + index + 1
       : totalData - (currentPage - 1) * itemsPerPage - index;
   }, [currentPage, itemsPerPage, sortConfig.order, totalData]);
 
-  const renderSortIcon = useCallback((key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel') => {
+  const renderSortIcon = useCallback((key: string) => {
     if (sortConfig.key === key) {
       return sortConfig.order === "asc"
         ? <FaArrowDownShortWide className="text-blue-500 cursor-pointer" />
@@ -77,21 +109,19 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     return <FaSort className="text-gray-400 cursor-pointer" />;
   }, [sortConfig]);
 
-  // Selection status checkers
   const isAllVisibleSelected = useCallback(() => {
-    return siswaData.every(siswa => selectedRows.has(siswa.id_siswa));
-  }, [siswaData, selectedRows]);
+    return sortedData.every(siswa => selectedRows.has(siswa.id_siswa));
+  }, [sortedData, selectedRows]);
 
   const isSomeVisibleSelected = useCallback(() => {
-    return siswaData.some(siswa => selectedRows.has(siswa.id_siswa)) &&
+    return sortedData.some(siswa => selectedRows.has(siswa.id_siswa)) &&
       !isAllVisibleSelected();
-  }, [siswaData, selectedRows, isAllVisibleSelected]);
+  }, [sortedData, selectedRows, isAllVisibleSelected]);
 
   const isAllDataSelected = useCallback(() => {
     return allIds.length > 0 && selectedRows.size === allIds.length;
   }, [allIds, selectedRows]);
 
-  // Selection handlers
   const handleRowSelect = useCallback((id: number) => {
     setSelectedRows(prev => {
       const newSelected = new Set(prev);
@@ -101,7 +131,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   }, []);
 
   const handleSelectVisible = useCallback(() => {
-    const visibleIds = siswaData.map(s => s.id_siswa);
+    const visibleIds = sortedData.map(s => s.id_siswa);
 
     setSelectedRows(prev => {
       const newSelected = new Set(prev);
@@ -113,7 +143,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
 
       return newSelected;
     });
-  }, [siswaData, isAllVisibleSelected]);
+  }, [sortedData, isAllVisibleSelected]);
 
   const handleSelectAllData = useCallback(async () => {
     if (isAllDataSelected()) {
@@ -128,12 +158,6 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
 
   const handleClearSelection = useCallback(() => setSelectedRows(new Set()), []);
 
-  const handleExport = useCallback(() => {
-    console.log('Exporting selected:', Array.from(selectedRows));
-    // Implement actual export logic here
-  }, [selectedRows]);
-
-  // Error display
   if (error) {
     return (
       <div className="p-4 text-red-500">
@@ -150,7 +174,6 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
 
   return (
     <div className="w-full max-h-full overflow-auto">
-      {/* Selection Action Bar */}
       {selectedRows.size > 0 && (
         <div className="h-10 sticky top-0 z-50 bg-cyan-100 flex items-center p-2">
           <div className="flex gap-2">
@@ -182,7 +205,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
             <ExportButton
               selectedRows={selectedRows}
               isAllDataSelected={isAllDataSelected()}
-              siswaData={siswaData}
+              siswaData={sortedData}
               sortConfig={sortConfig}
               disabled={isLoadingAllIds}
             />
@@ -198,7 +221,6 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
         </div>
       )}
 
-      {/* Main Table */}
       <div className="border-gray-300">
         <table className="min-w-full bg-white divide-y divide-gray-300">
           <thead className={`bg-slate-100 sticky ${selectedRows.size > 0 ? 'top-10' : 'top-0'} z-50`}>
@@ -283,7 +305,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
           </thead>
 
           <tbody className="divide-y divide-gray-200">
-            {siswaData.map((siswa, index) => (
+            {sortedData.map((siswa, index) => (
               <tr
                 key={siswa.id_siswa}
                 className={`${selectedRows.has(siswa.id_siswa)

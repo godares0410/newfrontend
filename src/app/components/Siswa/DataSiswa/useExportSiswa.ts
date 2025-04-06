@@ -57,13 +57,29 @@ const useExportSiswa = (
     if (!sortConfig.key) return data;
 
     return [...data].sort((a, b) => {
-      // Handle nested properties
-      const getValue = (obj: any, key: string) => {
-        return key.split('.').reduce((o, k) => (o || {})[k], obj);
-      };
+      // Special case for nama_kelas + nama_siswa
+      if (sortConfig.key === 'nama_kelas') {
+        const kelasCompare = (a.nama_kelas || '').localeCompare(b.nama_kelas || '');
+        if (kelasCompare !== 0) {
+          return sortConfig.order === 'asc' ? kelasCompare : -kelasCompare;
+        }
+        // If kelas sama, sort by nama_siswa ascending
+        return (a.nama_siswa || '').localeCompare(b.nama_siswa || '');
+      }
 
-      const aValue = getValue(a, sortConfig.key) || '';
-      const bValue = getValue(b, sortConfig.key) || '';
+      // Special case for nama_rombel + nama_siswa
+      if (sortConfig.key === 'nama_rombel') {
+        const rombelCompare = (a.nama_rombel || '').localeCompare(b.nama_rombel || '');
+        if (rombelCompare !== 0) {
+          return sortConfig.order === 'asc' ? rombelCompare : -rombelCompare;
+        }
+        // If rombel sama, sort by nama_siswa ascending
+        return (a.nama_siswa || '').localeCompare(b.nama_siswa || '');
+      }
+
+      // Default sorting for other columns
+      const aValue = a[sortConfig.key as keyof Siswa] || '';
+      const bValue = b[sortConfig.key as keyof Siswa] || '';
 
       if (aValue < bValue) {
         return sortConfig.order === 'asc' ? -1 : 1;
