@@ -183,6 +183,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
               selectedRows={selectedRows}
               isAllDataSelected={isAllDataSelected()}
               siswaData={siswaData}
+              sortConfig={sortConfig}
               disabled={isLoadingAllIds}
             />
 

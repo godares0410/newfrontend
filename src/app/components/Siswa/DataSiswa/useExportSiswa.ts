@@ -1,17 +1,49 @@
 import { useState, useCallback } from 'react';
-import * as XLSX from 'xlsx-js-style'; // Gunakan xlsx-js-style untuk styling
+import * as XLSX from 'xlsx-js-style';
 import { saveAs } from 'file-saver';
 import axios from 'axios';
 import type { Siswa } from '@/app/components/types/siswa';
 
+type SortConfig = {
+  key: string;
+  order: 'asc' | 'desc';
+};
+
+type ExcelStyledCell = {
+  v: string | number;
+  s: XLSX.CellStyle;
+};
+
+type ExcelRowData = {
+  [key: string]: string | number | ExcelStyledCell;
+};
+
 const useExportSiswa = (
   selectedRows: Set<number>,
   isAllDataSelected: boolean,
-  siswaData: any[]
+  siswaData: Siswa[],
+  sortConfig: SortConfig
 ) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchAllSiswaData = async () => {
+  // Reusable styles
+  const centerStyle: XLSX.CellStyle = {
+    alignment: { horizontal: 'center' }
+  };
+
+  const headerStyle: XLSX.CellStyle = {
+    alignment: { horizontal: 'center', vertical: 'center' },
+    font: { bold: true },
+    fill: { fgColor: { rgb: 'D9E1F2' } },
+    border: {
+      top: { style: 'thin', color: { rgb: '000000' } },
+      bottom: { style: 'thin', color: { rgb: '000000' } },
+      left: { style: 'thin', color: { rgb: '000000' } },
+      right: { style: 'thin', color: { rgb: '000000' } },
+    }
+  };
+
+  const fetchAllSiswaData = async (): Promise<Siswa[]> => {
     try {
       const response = await axios.get('/api/siswa/all');
       return response.data.data_siswa || [];
@@ -21,68 +53,64 @@ const useExportSiswa = (
     }
   };
 
+  const sortData = (data: Siswa[]): Siswa[] => {
+    if (!sortConfig.key) return data;
+
+    return [...data].sort((a, b) => {
+      // Handle nested properties
+      const getValue = (obj: any, key: string) => {
+        return key.split('.').reduce((o, k) => (o || {})[k], obj);
+      };
+
+      const aValue = getValue(a, sortConfig.key) || '';
+      const bValue = getValue(b, sortConfig.key) || '';
+
+      if (aValue < bValue) {
+        return sortConfig.order === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.order === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
   const handleExport = useCallback(async () => {
     try {
       setIsLoading(true);
       
-      let dataToExport: Siswa[] = [];
-
-      if (isAllDataSelected) {
-        dataToExport = await fetchAllSiswaData();
-      } else {
-        dataToExport = siswaData.filter((siswa: Siswa) => 
-          selectedRows.has(siswa.id_siswa)
-        );
-      }
+      let dataToExport: Siswa[] = isAllDataSelected 
+        ? await fetchAllSiswaData() 
+        : siswaData.filter(siswa => selectedRows.has(siswa.id_siswa));
 
       if (dataToExport.length === 0) {
         alert('Tidak ada data yang dipilih untuk diekspor');
         return;
       }
 
-      // Format data untuk Excel dengan styling
-      const excelDataStyled = dataToExport.map((siswa: Siswa, index: number) => ({
-        'No': {
-          v: index + 1,
-          s: {
-            alignment: { horizontal: 'center' }
-          }
-        },
+      // Apply sorting before export
+      dataToExport = sortData(dataToExport);
+
+      // Format data dengan styling
+      const excelDataStyled: ExcelRowData[] = dataToExport.map((siswa, index) => ({
+        'No': { v: index + 1, s: centerStyle },
         'Nama Siswa': siswa.nama_siswa,
         'NIS': siswa.nis,
         'NISN': siswa.nisn,
-        'Kelas': {
-            v: siswa.nama_kelas || '-',
-            s: {
-              alignment: { horizontal: 'center' }
-            }
-          },
+        'Kelas': { v: siswa.nama_kelas || '-', s: centerStyle },
         'Rombel': siswa.nama_rombel || '-',
         'Ekstrakurikuler': siswa.ekskul?.map(e => e.nama).join(', ') || '-',
-        'Jenis Kelamin': {
-            v: siswa.jenis_kelamin || '-',
-            s: {
-              alignment: { horizontal: 'center' }
-            }
-          },
-        'Tahun Masuk': {
-            v: siswa.tahun_masuk || '-',
-            s: {
-              alignment: { horizontal: 'center' }
-            }
-          },
-        'Status':{
-            v: Number(siswa.status) === 1 ? 'Aktif' : 'Non-Aktif',
-            s: {
-              alignment: { horizontal: 'center' }
-            }
-          },
+        'Jenis Kelamin': { v: siswa.jenis_kelamin || '-', s: centerStyle },
+        'Tahun Masuk': { v: siswa.tahun_masuk || '-', s: centerStyle },
+        'Status': { 
+          v: Number(siswa.status) === 1 ? 'Aktif' : 'Non-Aktif', 
+          s: centerStyle 
+        },
       }));
 
-      // Buat worksheet dari data
       const worksheet = XLSX.utils.json_to_sheet(excelDataStyled);
 
-      // Atur lebar kolom
+      // Set column widths
       worksheet['!cols'] = [
         { wch: 5 },   // No
         { wch: 25 },  // Nama Siswa
@@ -96,56 +124,38 @@ const useExportSiswa = (
         { wch: 10 }   // Status
       ];
 
-      // Styling untuk header
-      const headerStyle = {
-        alignment: { horizontal: 'center', vertical: 'center' },
-        font: { bold: true },
-        fill: {
-          fgColor: { rgb: 'D9E1F2' }
-        },
-        border: {
-          top: { style: 'thin', color: { rgb: '000000' } },
-          bottom: { style: 'thin', color: { rgb: '000000' } },
-          left: { style: 'thin', color: { rgb: '000000' } },
-          right: { style: 'thin', color: { rgb: '000000' } },
-        }
-      };
-
-      // Ambil semua kolom header dari objek pertama
+      // Apply header style
       const headerKeys = Object.keys(excelDataStyled[0]);
-
-      // Terapkan style ke semua header cell
-      headerKeys.forEach((key, colIdx) => {
+      headerKeys.forEach((_, colIdx) => {
         const cellRef = XLSX.utils.encode_cell({ c: colIdx, r: 0 });
         if (worksheet[cellRef]) {
           worksheet[cellRef].s = headerStyle;
         }
       });
 
-      // Buat workbook dan append sheet
+      // Create and export workbook
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Data Siswa');
 
-      // Generate Excel buffer
       const excelBuffer = XLSX.write(workbook, {
         bookType: 'xlsx',
         type: 'array'
       });
 
-      const blob = new Blob([excelBuffer], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      });
-
-      // Download file
-      saveAs(blob, `data_siswa_${new Date().toISOString().slice(0,10)}.xlsx`);
+      saveAs(
+        new Blob([excelBuffer], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        }),
+        `data_siswa_${new Date().toISOString().slice(0,10)}.xlsx`
+      );
 
     } catch (error) {
       console.error('Export error:', error);
-      alert('Gagal mengekspor data: ' + (error as Error).message);
+      alert(`Gagal mengekspor data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
-  }, [selectedRows, isAllDataSelected, siswaData]);
+  }, [selectedRows, isAllDataSelected, siswaData, sortConfig]);
 
   return {
     handleExport,

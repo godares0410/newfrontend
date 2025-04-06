@@ -1,4 +1,3 @@
-// components/Siswa/DataSiswa/ExportButton.tsx
 import React from 'react';
 import { RiFileExcel2Fill } from "react-icons/ri";
 import useExportSiswa from './useExportSiswa';
@@ -7,6 +6,10 @@ interface ExportButtonProps {
   selectedRows: Set<number>;
   isAllDataSelected: boolean;
   siswaData: any[];
+  sortConfig: {
+    key: string;
+    order: 'asc' | 'desc';
+  };
   disabled?: boolean;
   className?: string;
 }
@@ -15,13 +18,15 @@ const ExportButton: React.FC<ExportButtonProps> = ({
   selectedRows,
   isAllDataSelected,
   siswaData,
+  sortConfig,
   disabled = false,
   className = "",
 }) => {
   const { handleExport, isLoading } = useExportSiswa(
     selectedRows,
     isAllDataSelected,
-    siswaData
+    siswaData,
+    sortConfig
   );
 
   return (
