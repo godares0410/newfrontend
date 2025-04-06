@@ -1,3 +1,4 @@
+// components/types/SiswaCard.ts
 export type Siswa = {
     id_siswa: number;
     kode_siswa: string;
