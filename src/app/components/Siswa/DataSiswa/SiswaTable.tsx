@@ -1,17 +1,18 @@
 // components/Siswa/DataSiswa/SiswaTable.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
-import { 
-  FaArrowDownShortWide, 
-  FaArrowUpShortWide, 
-  FaSort, 
-  FaArrowRightLong, 
-  FaPencil 
+import {
+  FaArrowDownShortWide,
+  FaArrowUpShortWide,
+  FaSort,
+  FaArrowRightLong,
+  FaPencil
 } from "react-icons/fa6";
 import { MdArchive } from "react-icons/md";
 import { RiFileExcel2Fill } from "react-icons/ri";
 import { IoIosClose } from "react-icons/io";
 import type { SiswaTableProps } from "@/app/components/types/siswa";
+import ExportButton from "@/app/components/Siswa/DataSiswa/ExportButton";
 
 const SiswaTable: React.FC<SiswaTableProps> = ({
   siswaData,
@@ -53,9 +54,9 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   // Update checkbox indeterminate state
   useEffect(() => {
     if (checkboxRef.current) {
-      checkboxRef.current.indeterminate = 
-        selectedRows.size > 0 && 
-        selectedRows.size < siswaData.length && 
+      checkboxRef.current.indeterminate =
+        selectedRows.size > 0 &&
+        selectedRows.size < siswaData.length &&
         !isAllDataSelected();
     }
   }, [selectedRows, siswaData]);
@@ -69,8 +70,8 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
 
   const renderSortIcon = useCallback((key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel') => {
     if (sortConfig.key === key) {
-      return sortConfig.order === "asc" 
-        ? <FaArrowDownShortWide className="text-blue-500 cursor-pointer" /> 
+      return sortConfig.order === "asc"
+        ? <FaArrowDownShortWide className="text-blue-500 cursor-pointer" />
         : <FaArrowUpShortWide className="text-blue-500 cursor-pointer" />;
     }
     return <FaSort className="text-gray-400 cursor-pointer" />;
@@ -82,8 +83,8 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   }, [siswaData, selectedRows]);
 
   const isSomeVisibleSelected = useCallback(() => {
-    return siswaData.some(siswa => selectedRows.has(siswa.id_siswa)) && 
-           !isAllVisibleSelected();
+    return siswaData.some(siswa => selectedRows.has(siswa.id_siswa)) &&
+      !isAllVisibleSelected();
   }, [siswaData, selectedRows, isAllVisibleSelected]);
 
   const isAllDataSelected = useCallback(() => {
@@ -101,15 +102,15 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
 
   const handleSelectVisible = useCallback(() => {
     const visibleIds = siswaData.map(s => s.id_siswa);
-    
+
     setSelectedRows(prev => {
       const newSelected = new Set(prev);
       const allSelected = isAllVisibleSelected();
-      
+
       visibleIds.forEach(id => {
         allSelected ? newSelected.delete(id) : newSelected.add(id);
       });
-      
+
       return newSelected;
     });
   }, [siswaData, isAllVisibleSelected]);
@@ -137,7 +138,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     return (
       <div className="p-4 text-red-500">
         {error}
-        <button 
+        <button
           onClick={fetchAllStudentIds}
           className="ml-2 px-2 py-1 bg-gray-200 rounded"
         >
@@ -172,23 +173,23 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                   )}
                 </button>
               )}
-              <IoIosClose 
-                className="text-xl font-bold text-slate-600 cursor-pointer hover:text-red-500" 
+              <IoIosClose
+                className="text-xl font-bold text-slate-600 cursor-pointer hover:text-red-500"
                 onClick={handleClearSelection}
               />
             </div>
-            
-            <button
-              onClick={handleExport}
-              className="text-slate-600 hover:bg-emerald-400 cursor-pointer text-sm p-1 bg-emerald-300 rounded-lg flex gap-1 items-center transition-colors"
-            >
-              <RiFileExcel2Fill /> Export
-            </button>
-            
+
+            <ExportButton
+              selectedRows={selectedRows}
+              isAllDataSelected={isAllDataSelected()}
+              siswaData={siswaData}
+              disabled={isLoadingAllIds}
+            />
+
             <button className="text-slate-600 hover:bg-cyan-400 cursor-pointer text-sm p-1 bg-cyan-300 rounded-lg flex gap-1 items-center transition-colors">
               <FaPencil /> Edit Massal
             </button>
-            
+
             <button className="text-slate-600 hover:bg-red-400 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center transition-colors">
               <MdArchive /> Arsipkan
             </button>
@@ -213,7 +214,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                   <span className="text-sm font-medium">No</span>
                 </div>
               </th>
-              
+
               <th className="px-4 py-3 text-left sticky left-16 bg-slate-100 z-20">
                 <div className="flex items-center justify-center">
                   <span className="text-sm font-medium">Nama Siswa</span>
@@ -225,7 +226,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                   </button>
                 </div>
               </th>
-              
+
               <th className="px-4 py-3 text-left">
                 <div className="flex items-center justify-center">
                   <span className="text-sm font-medium">NIS</span>
@@ -237,7 +238,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                   </button>
                 </div>
               </th>
-              
+
               <th className="px-4 py-3 text-left">
                 <div className="flex items-center justify-center">
                   <span className="text-sm font-medium">NISN</span>
@@ -249,7 +250,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                   </button>
                 </div>
               </th>
-              
+
               <th className="px-4 py-3 text-left">
                 <div className="flex items-center justify-center">
                   <span className="text-sm font-medium">Kelas</span>
@@ -261,7 +262,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                   </button>
                 </div>
               </th>
-              
+
               <th className="px-4 py-3 text-left">
                 <div className="flex items-center justify-center">
                   <span className="text-sm font-medium">Rombel</span>
@@ -273,24 +274,23 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                   </button>
                 </div>
               </th>
-              
+
               <th className="px-4 py-3 text-center">
                 <span className="text-sm font-medium">Ekstrakurikuler</span>
               </th>
             </tr>
           </thead>
-          
+
           <tbody className="divide-y divide-gray-200">
             {siswaData.map((siswa, index) => (
-              <tr 
-                key={siswa.id_siswa} 
-                className={`${
-                  selectedRows.has(siswa.id_siswa) 
-                    ? 'bg-blue-50' 
-                    : index % 2 === 0 
-                      ? 'bg-white' 
-                      : 'bg-gray-100'
-                } hover:bg-blue-100 transition-colors`}
+              <tr
+                key={siswa.id_siswa}
+                className={`${selectedRows.has(siswa.id_siswa)
+                  ? 'bg-blue-50'
+                  : index % 2 === 0
+                    ? 'bg-white'
+                    : 'bg-gray-100'
+                  } hover:bg-blue-100 transition-colors`}
               >
                 <td className="px-4 py-3 text-center sticky left-0 bg-inherit z-10">
                   <div className="flex items-center justify-center">
@@ -305,12 +305,12 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                     </span>
                   </div>
                 </td>
-                
+
                 <td className="px-4 py-3 sticky left-16 bg-inherit z-10">
                   <div className="flex items-center">
                     {siswa.foto && (
-                      <img 
-                        src={`/img/siswa/sabilillah/${siswa.foto}`} 
+                      <img
+                        src={`/img/siswa/sabilillah/${siswa.foto}`}
                         alt={siswa.nama_siswa}
                         className="h-8 w-8 rounded-full object-cover mr-3"
                       />
@@ -320,16 +320,16 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                     </span>
                   </div>
                 </td>
-                
+
                 <td className="px-4 py-3 text-sm text-gray-700 text-center">{siswa.nis}</td>
                 <td className="px-4 py-3 text-sm text-gray-700 text-center">{siswa.nisn}</td>
                 <td className="px-4 py-3 text-sm text-gray-700 text-center">{siswa.nama_kelas}</td>
                 <td className="px-4 py-3 text-sm text-gray-700 text-center">{siswa.nama_rombel}</td>
-                
+
                 <td className="px-4 py-3">
                   <div className="flex flex-wrap gap-1">
                     {siswa.ekskul.map((e, i) => (
-                      <span 
+                      <span
                         key={i}
                         className="px-2 py-1 text-xs rounded-full"
                         style={{ backgroundColor: `${e.warna}20`, color: e.warna }}
