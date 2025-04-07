@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { MdArchive } from "react-icons/md";
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface ArsipButtonProps {
   selectedRows: Set<number>;
@@ -31,10 +33,11 @@ const ArsipButton: React.FC<ArsipButtonProps> = ({
   const handleArsip = async () => {
     if (selectedRows.size === 0) {
       onError?.('Tidak ada siswa yang dipilih');
+      toast.error('Tidak ada siswa yang dipilih');
       return;
     }
 
-    // Konfirmasi dengan SweetAlert2
+    // Konfirmasi dengan SweetAlert2 (tetap digunakan untuk confirmation)
     const result = await Swal.fire({
       title: 'Arsipkan Data',
       html: message,
@@ -57,27 +60,24 @@ const ArsipButton: React.FC<ArsipButtonProps> = ({
         // Kirim data dalam body
         await axios.put(`/api/siswa/status/${statusFilter ? 1 : 0}`, { ids });
       
-      // Notifikasi sukses
-      await Swal.fire({
-        title: 'Berhasil!',
-        html: messagesukses,
-        icon: 'success',
-        timer: 2000,
-        showConfirmButton: false
-      });
+      // Notifikasi sukses dengan react-toastify
+      toast.success(
+        <div dangerouslySetInnerHTML={{ __html: messagesukses }} />,
+        {
+          autoClose: 2000,
+          hideProgressBar: true,
+        }
+      );
       
       onSuccess?.();
     } catch (error) {
       console.error('Error archiving students:', error);
       
-      // Notifikasi error
-      await Swal.fire({
-        title: 'Gagal!',
-        text: error instanceof Error ? error.message : 'Gagal mengarsipkan siswa',
-        icon: 'error'
-      });
+      // Notifikasi error dengan react-toastify
+      const errorMessage = error instanceof Error ? error.message : 'Gagal mengarsipkan siswa';
+      toast.error(errorMessage);
       
-      onError?.(error instanceof Error ? error.message : 'Gagal mengarsipkan siswa');
+      onError?.(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -85,18 +85,18 @@ const ArsipButton: React.FC<ArsipButtonProps> = ({
 
   return (
     <button
-    onClick={handleArsip}
-    disabled={disabled || isLoading}
-    className={`text-slate-600 hover:bg-red-400 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center transition-colors disabled:opacity-50 ${className}`}
-  >
-    {isLoading ? (
-      statusFilter ? 'Mengarsipkan...' : 'Batal arsipkan...'
-    ) : (
-      <>
-        <MdArchive /> {statusFilter ? `Arsipkan (${selectedRows.size})` : `Batal Arsipkan (${selectedRows.size})`}
-      </>
-    )}
-  </button>
+      onClick={handleArsip}
+      disabled={disabled || isLoading}
+      className={`text-slate-600 hover:bg-red-400 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center transition-colors disabled:opacity-50 ${className}`}
+    >
+      {isLoading ? (
+        statusFilter ? 'Mengarsipkan...' : 'Batal arsipkan...'
+      ) : (
+        <>
+          <MdArchive /> {statusFilter ? `Arsipkan (${selectedRows.size})` : `Batal Arsipkan (${selectedRows.size})`}
+        </>
+      )}
+    </button>
   );
 };
 

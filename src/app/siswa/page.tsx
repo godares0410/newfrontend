@@ -9,6 +9,9 @@ import SiswaCard from "@/app/components/Siswa/DataSiswa/SiswaCard";
 import SiswaTable from "@/app/components/Siswa/DataSiswa/SiswaTable";
 import Sidebar from "@/app/components/Siswa/DataSiswa/SiswaSidebar";
 import type { Siswa, Ekskul, SortConfig } from "@/app/components/types/siswa";
+// App.tsx
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Siswa() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -141,6 +144,7 @@ export default function Siswa() {
 
     return (
         <main className="h-screen flex flex-col items-center bg-cyan-100 overflow-auto">
+            <ToastContainer />
             <Header menuData={menuData} />
             <Nav
                 searchQuery={searchQuery}
