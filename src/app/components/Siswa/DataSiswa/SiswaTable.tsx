@@ -7,11 +7,11 @@ import {
   FaArrowRightLong,
   FaPencil
 } from "react-icons/fa6";
-import { MdArchive } from "react-icons/md";
-// import { RiFileExcel2Fill } from "react-icons/ri";
+// import { MdArchive } from "react-icons/md";
 import { IoIosClose } from "react-icons/io";
 import type { SiswaTableProps } from "@/app/components/types/siswa";
 import ExportButton from "@/app/components/Siswa/DataSiswa/ExportButton";
+import ArsipButton from "@/app/components/Siswa/DataSiswa/ArsipButton";
 
 const SiswaTable: React.FC<SiswaTableProps> = ({
   siswaData,
@@ -26,6 +26,19 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   const [isLoadingAllIds, setIsLoadingAllIds] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const checkboxRef = useRef<HTMLInputElement>(null);
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error';
+    message: string;
+  } | null>(null);
+  const handleArsipSuccess = useCallback(() => {
+    setNotification({ type: 'success', message: 'Siswa berhasil diarsipkan' });
+    setSelectedRows(new Set()); // Clear selection after archiving
+    // Anda mungkin perlu refresh data siswa di sini
+  }, []);
+
+  const handleArsipError = useCallback((error: string) => {
+    setNotification({ type: 'error', message: error });
+  }, []);
 
   const fetchAllStudentIds = useCallback(async () => {
     setIsLoadingAllIds(true);
@@ -173,6 +186,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   }
 
   return (
+    
     <div className="w-full max-h-full overflow-auto">
       {selectedRows.size > 0 && (
         <div className="h-10 sticky top-0 z-50 bg-cyan-100 flex items-center p-2">
@@ -214,9 +228,12 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
               <FaPencil /> Edit Massal
             </button>
 
-            <button className="text-slate-600 hover:bg-red-400 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center transition-colors">
-              <MdArchive /> Arsipkan
-            </button>
+            <ArsipButton
+              selectedRows={selectedRows}
+              disabled={isLoadingAllIds}
+              onSuccess={handleArsipSuccess}
+              onError={handleArsipError}
+            />
           </div>
         </div>
       )}
