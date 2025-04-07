@@ -1,7 +1,7 @@
 "use client";
 
 import { IoMdSearch } from "react-icons/io";
-import { FaCheck, FaChevronDown, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaCheck, FaChevronDown, FaAngleLeft, FaAngleRight, FaList } from "react-icons/fa";
 import { MdArchive } from "react-icons/md";
 import { TbLayoutKanbanFilled } from "react-icons/tb";
 import { useState, useRef, useEffect } from "react";
@@ -165,7 +165,7 @@ export default function Nav({
             onClick={() => setViewMode("list")}
             title="Tampilan List"
           >
-            <MdArchive className="w-5 h-5" />
+            <FaList className="w-5 h-5" />
           </button>
         </div>
         <div className="text-sm bg-emerald-400 rounded-md px-2 py-1 cursor-pointer shadow-md hover:bg-emerald-500 text-slate-700 hover:text-slate-100">Tambah Data</div>
