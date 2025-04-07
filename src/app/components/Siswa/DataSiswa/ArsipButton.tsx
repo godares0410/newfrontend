@@ -9,6 +9,7 @@ interface ArsipButtonProps {
   className?: string;
   onSuccess?: () => void;
   onError?: (error: string) => void;
+  statusFilter: boolean;
 }
 
 const ArsipButton: React.FC<ArsipButtonProps> = ({
@@ -16,9 +17,16 @@ const ArsipButton: React.FC<ArsipButtonProps> = ({
   disabled = false,
   className = "",
   onSuccess,
-  onError
+  onError,
+  statusFilter
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const message = statusFilter 
+    ? `Apakah Anda yakin ingin mengarsipkan <span class="text-red-500 font-bold">${selectedRows.size}</span> data siswa?`
+    : `Apakah Anda yakin ingin batal arsipkan <span class="text-red-500 font-bold">${selectedRows.size}</span> data siswa?`;
+  const messagesukses = statusFilter 
+    ? `<span class="text-red-500 font-bold">${selectedRows.size}</span> data siswa berhasil diarsipkan`
+    : `<span class="text-emerald-500 font-bold">${selectedRows.size}</span> data siswa berhasil dipulihkan`;
 
   const handleArsip = async () => {
     if (selectedRows.size === 0) {
@@ -29,7 +37,7 @@ const ArsipButton: React.FC<ArsipButtonProps> = ({
     // Konfirmasi dengan SweetAlert2
     const result = await Swal.fire({
       title: 'Arsipkan Data',
-      html: `Apakah Anda yakin ingin mengarsipkan <span class="text-red-500 font-bold">${selectedRows.size}</span> data siswa?`,
+      html: message,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -44,15 +52,15 @@ const ArsipButton: React.FC<ArsipButtonProps> = ({
     setIsLoading(true);
     
     try {
-      const ids = Array.from(selectedRows);
-      const queryString = ids.map(id => `id=${id}`).join('&');
-      
-      await axios.put(`/api/siswa/arsip?${queryString}`);
+        const ids = Array.from(selectedRows);
+        
+        // Kirim data dalam body
+        await axios.put(`/api/siswa/status/${statusFilter ? 1 : 0}`, { ids });
       
       // Notifikasi sukses
       await Swal.fire({
         title: 'Berhasil!',
-        html: `<span class="text-red-500 font-bold">${selectedRows.size}</span> data siswa berhasil diarsipkan`,
+        html: messagesukses,
         icon: 'success',
         timer: 2000,
         showConfirmButton: false
@@ -77,18 +85,18 @@ const ArsipButton: React.FC<ArsipButtonProps> = ({
 
   return (
     <button
-      onClick={handleArsip}
-      disabled={disabled || isLoading}
-      className={`text-slate-600 hover:bg-red-400 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center transition-colors disabled:opacity-50 ${className}`}
-    >
-      {isLoading ? (
-        'Mengarsipkan...'
-      ) : (
-        <>
-          <MdArchive /> Arsipkan ({selectedRows.size})
-        </>
-      )}
-    </button>
+    onClick={handleArsip}
+    disabled={disabled || isLoading}
+    className={`text-slate-600 hover:bg-red-400 cursor-pointer text-sm p-1 bg-red-300 rounded-lg flex gap-1 items-center transition-colors disabled:opacity-50 ${className}`}
+  >
+    {isLoading ? (
+      statusFilter ? 'Mengarsipkan...' : 'Batal arsipkan...'
+    ) : (
+      <>
+        <MdArchive /> {statusFilter ? `Arsipkan (${selectedRows.size})` : `Batal Arsipkan (${selectedRows.size})`}
+      </>
+    )}
+  </button>
   );
 };
 

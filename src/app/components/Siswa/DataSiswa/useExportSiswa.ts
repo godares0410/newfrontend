@@ -22,7 +22,8 @@ const useExportSiswa = (
   selectedRows: Set<number>,
   isAllDataSelected: boolean,
   siswaData: Siswa[],
-  sortConfig: SortConfig
+  sortConfig: SortConfig,
+  statusFilter: boolean,
 ) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,7 +46,7 @@ const useExportSiswa = (
 
   const fetchAllSiswaData = async (): Promise<Siswa[]> => {
     try {
-      const response = await axios.get('/api/siswa/all');
+      const response = await axios.get(`/api/siswa/all/${statusFilter ? 1 : 0}`);
       return response.data.data_siswa || [];
     } catch (error) {
       console.error('Error fetching all data:', error);

@@ -30,6 +30,7 @@ export type SiswaTableProps = {
     totalData: number;
     currentPage: number;
     itemsPerPage: number;
+    statusFilter: boolean; 
 };
 
 export type Ekskul = {

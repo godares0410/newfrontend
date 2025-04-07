@@ -7,7 +7,6 @@ import {
   FaArrowRightLong,
   FaPencil
 } from "react-icons/fa6";
-// import { MdArchive } from "react-icons/md";
 import { IoIosClose } from "react-icons/io";
 import type { SiswaTableProps } from "@/app/components/types/siswa";
 import ExportButton from "@/app/components/Siswa/DataSiswa/ExportButton";
@@ -20,6 +19,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   totalData,
   currentPage,
   itemsPerPage,
+  statusFilter,
 }) => {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [allIds, setAllIds] = useState<number[]>([]);
@@ -30,10 +30,10 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+
   const handleArsipSuccess = useCallback(() => {
     setNotification({ type: 'success', message: 'Siswa berhasil diarsipkan' });
     setSelectedRows(new Set()); // Clear selection after archiving
-    // Anda mungkin perlu refresh data siswa di sini
   }, []);
 
   const handleArsipError = useCallback((error: string) => {
@@ -44,7 +44,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     setIsLoadingAllIds(true);
     setError(null);
     try {
-      const response = await axios.get<{ data: number[] }>('/api/idsiswa', {
+      const response = await axios.get<{ data: number[] }>(`/api/idsiswa/${statusFilter ? 1 : 0}`, {
         timeout: 10000,
       });
       setAllIds(response.data.data);
@@ -54,11 +54,16 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     } finally {
       setIsLoadingAllIds(false);
     }
-  }, []);
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchAllStudentIds();
   }, [fetchAllStudentIds]);
+
+  // Reset selectedRows when statusFilter changes
+  useEffect(() => {
+    setSelectedRows(new Set());
+  }, [statusFilter]);
 
   useEffect(() => {
     if (checkboxRef.current) {
@@ -186,10 +191,9 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   }
 
   return (
-    
     <div className="w-full max-h-full overflow-auto">
       {selectedRows.size > 0 && (
-        <div className="h-10 sticky top-0 z-50 bg-cyan-100 flex items-center p-2">
+        <div className="h-10 sticky top-0 z-40 bg-cyan-100 flex items-center p-2">
           <div className="flex gap-2">
             <div className="p-1 bg-emerald-300 rounded-lg flex gap-1 items-center">
               <span className="text-sm text-slate-600">
@@ -222,6 +226,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
               siswaData={sortedData}
               sortConfig={sortConfig}
               disabled={isLoadingAllIds}
+              statusFilter={statusFilter}
             />
 
             <button className="text-slate-600 hover:bg-cyan-400 cursor-pointer text-sm p-1 bg-cyan-300 rounded-lg flex gap-1 items-center transition-colors">
@@ -233,6 +238,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
               disabled={isLoadingAllIds}
               onSuccess={handleArsipSuccess}
               onError={handleArsipError}
+              statusFilter={statusFilter}
             />
           </div>
         </div>
@@ -240,7 +246,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
 
       <div className="border-gray-300">
         <table className="min-w-full bg-white divide-y divide-gray-300">
-          <thead className={`bg-slate-100 sticky ${selectedRows.size > 0 ? 'top-10' : 'top-0'} z-50`}>
+          <thead className={`bg-slate-100 sticky ${selectedRows.size > 0 ? 'top-10' : 'top-0'} z-40`}>
             <tr>
               <th className="px-4 py-3 text-center w-16 sticky left-0 bg-slate-100 z-20">
                 <div className="flex items-center justify-center">
@@ -249,7 +255,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                     ref={checkboxRef}
                     checked={isAllVisibleSelected()}
                     onChange={handleSelectVisible}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2"
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-2 cursor-pointer"
                   />
                   <span className="text-sm font-medium">No</span>
                 </div>
@@ -338,7 +344,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                       type="checkbox"
                       checked={selectedRows.has(siswa.id_siswa)}
                       onChange={() => handleRowSelect(siswa.id_siswa)}
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="ml-2 text-sm text-gray-700 w-6">
                       {getNumbering(index)}

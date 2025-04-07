@@ -12,6 +12,7 @@ interface ExportButtonProps {
   };
   disabled?: boolean;
   className?: string;
+  statusFilter: boolean;
 }
 
 const ExportButton: React.FC<ExportButtonProps> = ({
@@ -21,12 +22,14 @@ const ExportButton: React.FC<ExportButtonProps> = ({
   sortConfig,
   disabled = false,
   className = "",
+  statusFilter,
 }) => {
   const { handleExport, isLoading } = useExportSiswa(
     selectedRows,
     isAllDataSelected,
     siswaData,
-    sortConfig
+    sortConfig,
+    statusFilter
   );
 
   return (

@@ -26,6 +26,7 @@ export default function Siswa() {
         key: 'nama_siswa',
         order: 'asc'
     });
+    const [statusFilter, setStatusFilter] = useState(true); // Add this state
 
     const menuData = {
         icon: "/img/aplikasi/Siswa.svg",
@@ -56,7 +57,7 @@ export default function Siswa() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get<{ data_siswa: Siswa[]; total: number }>("/api/siswa", {
+                const response = await axios.get<{ data_siswa: Siswa[]; total: number }>(`/api/siswa/${statusFilter ? 1 : 0}`, {
                     params: {
                         page: currentPage,
                         search: searchQuery,
@@ -93,7 +94,7 @@ export default function Siswa() {
         };
 
         fetchData();
-    }, [currentPage, searchQuery, sortConfig]);
+    }, [currentPage, searchQuery, sortConfig, statusFilter]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -149,6 +150,8 @@ export default function Siswa() {
                 setCurrentPage={handlePageChange}
                 viewMode={viewMode}
                 setViewMode={setViewMode}
+                statusFilter={statusFilter}         // Add this
+                setStatusFilter={setStatusFilter}
             />
             <div className="flex-1 flex w-full overflow-hidden">
                 <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
@@ -184,6 +187,7 @@ export default function Siswa() {
                                 totalData={total}
                                 currentPage={currentPage}
                                 itemsPerPage={itemsPerPage}
+                                statusFilter={statusFilter}
                             />
                         </div>
                     )}
