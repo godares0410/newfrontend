@@ -9,7 +9,6 @@ import SiswaCard from "@/app/components/Siswa/DataSiswa/SiswaCard";
 import SiswaTable from "@/app/components/Siswa/DataSiswa/SiswaTable";
 import Sidebar from "@/app/components/Siswa/DataSiswa/SiswaSidebar";
 import type { Siswa, Ekskul, SortConfig } from "@/app/components/types/siswa";
-// App.tsx
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -29,7 +28,7 @@ export default function Siswa() {
         key: 'nama_siswa',
         order: 'asc'
     });
-    const [statusFilter, setStatusFilter] = useState(true); // Add this state
+    const [statusFilter, setStatusFilter] = useState(true);
 
     const menuData = {
         icon: "/img/aplikasi/Siswa.svg",
@@ -154,7 +153,7 @@ export default function Siswa() {
                 setCurrentPage={handlePageChange}
                 viewMode={viewMode}
                 setViewMode={setViewMode}
-                statusFilter={statusFilter}         // Add this
+                statusFilter={statusFilter}
                 setStatusFilter={setStatusFilter}
             />
             <div className="flex-1 flex w-full overflow-hidden">

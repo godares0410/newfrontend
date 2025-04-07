@@ -37,3 +37,18 @@ export type Ekskul = {
     nama: string;
     warna: string;
 };
+
+type MenuItem = {
+    label: string;
+    link: string;
+};
+
+type MenuConfig = {
+    icon: string;
+    label: string;
+    menuItems: MenuItem[];
+};
+
+export type HeaderProps = {
+    menuData: MenuConfig;
+};

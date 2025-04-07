@@ -43,9 +43,6 @@ const SiswaCard: React.FC<SiswaCardProps> = ({ siswa, ekskulData }) => {
             </div>
             {/* Bagian Informasi Siswa */}
             <div className="w-[70%] flex-1 h-full px-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent scrollbar-none">
-                {/* Status Aktif (Contoh: Titik Hijau) */}
-                <div className="absolute w-3 h-3 bg-emerald-500 rounded-full right-2 top-2"></div>
-
                 {/* Nama Siswa */}
                 <div className="text-xl font-bold text-slate-700 truncate">
                     {siswa.nama}
