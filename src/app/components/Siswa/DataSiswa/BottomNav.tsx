@@ -56,7 +56,7 @@ const BottomNav = () => {
             getActiveIcon()
           )}
           <FaChevronUp
-            className={`absolute -bottom-1 -right-2 text-xs bg-orange-500 text-white rounded-full p-0.5 transition-all duration-200 ${
+            className={`absolute -bottom-1 -right-2 text-xs bg-cyan-500 text-white rounded-full p-0.5 transition-all duration-200 ${
               isProfileOpen ? "rotate-180" : ""
             }`}
           />
@@ -150,7 +150,7 @@ const BottomNav = () => {
                   <div className="flex flex-col items-center relative">
                     <div
                       className={`text-xl transition-all duration-300 ${
-                        isActive ? "opacity-0" : `text-gray-600 ${isDataSiswa ? '' : 'hover:text-cyan-500'}`
+                        isActive ? "opacity-0" : `text-gray-600 ${isDataSiswa ? 'text-orange-600' : 'hover:text-cyan-500'}`
                       }`}
                     >
                       {item.icon}
@@ -158,7 +158,7 @@ const BottomNav = () => {
                     <span
                       className={`text-xs mt-1 transition-all duration-300 ${
                         isActive 
-                          ? "font-semibold bg-gradient-to-r from-cyan-500 to-lime-500 bg-clip-text text-transparent" 
+                          ? "font-semibold bg-clip-text text-transparent" 
                           : isDataSiswa
                             ? "text-orange-500"
                             : "text-gray-500"
