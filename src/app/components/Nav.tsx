@@ -5,6 +5,7 @@ import { FaCheck, FaChevronDown, FaAngleLeft, FaAngleRight, FaList } from "react
 import { MdArchive } from "react-icons/md";
 import { TbLayoutKanbanFilled } from "react-icons/tb";
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 interface StatusDropdownProps {
   value: boolean;
@@ -39,9 +40,8 @@ const StatusDropdown = ({ value, onChange }: StatusDropdownProps) => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={toggleDropdown}
-        className={`flex cursor-pointer items-center justify-between gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-colors ${
-          value ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-slate-800'
-        } min-w-[120px] hover:opacity-90`}
+        className={`flex cursor-pointer items-center justify-between gap-2 px-4 py-1 rounded-lg text-sm font-medium transition-colors ${value ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-slate-800'
+          } min-w-[120px] hover:opacity-90`}
       >
         <div className="flex items-center gap-2">
           {value ? (
@@ -53,27 +53,25 @@ const StatusDropdown = ({ value, onChange }: StatusDropdownProps) => {
         </div>
         <FaChevronDown className={`text-xs transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
-      
+
       {isOpen && (
         <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg">
           <button
             onClick={() => handleSelect(true)}
-            className={`flex cursor-pointer items-center w-full px-4 py-2 text-sm ${
-              value 
-                ? 'bg-emerald-50 text-emerald-800 font-medium' 
-                : 'hover:bg-gray-50 text-gray-700'
-            }`}
+            className={`flex cursor-pointer items-center w-full px-4 py-2 text-sm ${value
+              ? 'bg-emerald-50 text-emerald-800 font-medium'
+              : 'hover:bg-gray-50 text-gray-700'
+              }`}
           >
             <FaCheck className={`mr-2 ${value ? "opacity-100" : "opacity-0"}`} />
             Aktif
           </button>
           <button
             onClick={() => handleSelect(false)}
-            className={`flex cursor-pointer items-center w-full px-4 py-2 text-sm ${
-              !value 
-                ? 'bg-amber-50 text-amber-800 font-medium' 
-                : 'hover:bg-gray-50 text-gray-700'
-            }`}
+            className={`flex cursor-pointer items-center w-full px-4 py-2 text-sm ${!value
+              ? 'bg-amber-50 text-amber-800 font-medium'
+              : 'hover:bg-gray-50 text-gray-700'
+              }`}
           >
             <MdArchive className={`mr-2 ${!value ? "opacity-100" : "opacity-0"}`} />
             Arsip
@@ -83,7 +81,16 @@ const StatusDropdown = ({ value, onChange }: StatusDropdownProps) => {
     </div>
   );
 };
+interface MenuItem {
+  label: string;
+  link: string;
+}
 
+interface MenuData {
+  icon: string;
+  label: string;
+  menuItems: MenuItem[];
+}
 interface NavProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -94,6 +101,7 @@ interface NavProps {
   setViewMode: (mode: "kanban" | "list") => void;
   statusFilter: boolean;
   setStatusFilter: (status: boolean) => void;
+  menuData: MenuData;
 }
 
 export default function Nav({
@@ -105,13 +113,30 @@ export default function Nav({
   viewMode,
   setViewMode,
   statusFilter,
-  setStatusFilter
+  setStatusFilter,
+  menuData
 }: NavProps) {
+  const pathname = usePathname();
+
+  const getCurrentTitle = () => {
+    if (pathname === '/siswa' || pathname === '/siswa/') {
+      return menuData.menuItems[0].label;
+    }
+
+    // Cari menu item yang link-nya match dengan pathname
+    const matchedItem = menuData.menuItems.find(item =>
+      pathname.startsWith(item.link)
+    );
+
+    return matchedItem ? matchedItem.label : menuData.menuItems[0].label;
+  };
+
+  const title = getCurrentTitle();
   return (
     <div className="w-full items-center justify-between h-16 px-8 grid grid-cols-3 gap-4">
       <div className="gap-2 flex items-center">
-        <div className="text-2xl text-slate-700 flex items-center gap-2">
-          Data Siswa
+        <div className="text-sm md:text-2xl text-slate-700 flex items-center gap-2">
+          {title}
         </div>
         <StatusDropdown value={statusFilter} onChange={setStatusFilter} />
       </div>

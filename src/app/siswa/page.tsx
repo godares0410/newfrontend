@@ -34,7 +34,7 @@ export default function Siswa() {
         icon: "/img/aplikasi/Siswa.svg",
         label: "Siswa",
         menuItems: [
-            { label: "Daftar Siswa", link: "/siswa/daftar-siswa" },
+            { label: "Data Siswa", link: "/siswa/daftar-siswa" },
             { label: "Buku Induk", link: "/siswa/buku-induk" },
             { label: "Catatan", link: "/siswa/catatan" },
             { label: "Laporan", link: "/siswa/laporan" },
@@ -155,6 +155,7 @@ export default function Siswa() {
                 setViewMode={setViewMode}
                 statusFilter={statusFilter}
                 setStatusFilter={setStatusFilter}
+                menuData={menuData}
             />
             <div className="flex-1 flex w-full overflow-hidden">
                 <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
