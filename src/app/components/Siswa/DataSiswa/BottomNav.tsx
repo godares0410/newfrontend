@@ -19,12 +19,16 @@ import { MdClose } from "react-icons/md";
 const BottomNav = () => {
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [clickedItem, setClickedItem] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (menuRef.current && 
+          !menuRef.current.contains(event.target as Node) && 
+          !buttonRef.current?.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
     };
@@ -35,6 +39,14 @@ const BottomNav = () => {
     };
   }, []);
 
+  // Reset clicked item after animation
+  useEffect(() => {
+    if (clickedItem) {
+      const timer = setTimeout(() => setClickedItem(null), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [clickedItem]);
+
   // Get active icon based on current route
   const getActiveIcon = () => {
     if (pathname === "/siswa") return <FaUserGraduate className="text-lg" />;
@@ -44,26 +56,46 @@ const BottomNav = () => {
     return <FaUserGraduate className="text-lg" />;
   };
 
+  const handleItemClick = (label: string) => {
+    setClickedItem(label);
+    if (label === "Data Siswa") {
+      toggleProfileMenu();
+    }
+  };
+
+  const toggleProfileMenu = () => {
+    setIsProfileOpen(prev => !prev);
+  };
+
   const mainMenuItems = [
     { label: "Menu", icon: <FaHome className="text-lg" />, href: "/menu" },
     { 
       label: "Data Siswa", 
       icon: (
         <div className="relative">
-          {isProfileOpen ? (
-            <MdClose className="text-lg" />
-          ) : (
-            getActiveIcon()
-          )}
+          <div className="relative w-5 h-5">
+            <MdClose 
+              className={`text-lg absolute inset-0 transition-all duration-500 ease-[cubic-bezier(0.68,-0.6,0.32,1.6)] ${
+                isProfileOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-50 translate-y-2"
+              }`} 
+            />
+            <div 
+              className={`absolute inset-0 transition-all duration-500 ease-[cubic-bezier(0.68,-0.6,0.32,1.6)] ${
+                isProfileOpen ? "opacity-0 scale-50 -translate-y-2" : "opacity-100 scale-100 translate-y-0"
+              }`}
+            >
+              {getActiveIcon()}
+            </div>
+          </div>
           <FaChevronUp
-            className={`absolute -bottom-1 -right-2 text-xs bg-cyan-500 text-white rounded-full p-0.5 transition-all duration-200 ${
+            className={`absolute -bottom-1 -right-2 text-xs bg-cyan-500 text-white rounded-full p-0.5 transition-all duration-300 ${
               isProfileOpen ? "rotate-180" : ""
             }`}
           />
         </div>
       ),
       href: "#",
-      onClick: () => setIsProfileOpen(!isProfileOpen) 
+      onClick: () => handleItemClick("Data Siswa")
     },
     { label: "Chat", icon: <IoMdChatbubbles className="text-lg" />, href: "/chat" },
     { label: "Camera", icon: <FaCamera className="text-lg" />, href: "/camera" },
@@ -85,9 +117,6 @@ const BottomNav = () => {
     if (pathname === "/siswa/laporan") return "Laporan";
     return "Data Siswa";
   })();
-
-  // Check if current path is exactly "/siswa"
-  const isExactlySiswa = pathname === "/siswa";
 
   return (
     <>
@@ -111,8 +140,15 @@ const BottomNav = () => {
           {profileMenuItems.map((item) => {
             const isActive = pathname === item.link;
             return (
-              <Link key={item.link} href={item.link} onClick={() => setIsProfileOpen(false)}>
-                <div className="flex items-center px-4 py-3 hover:bg-gray-50 rounded-xl transition-colors duration-200">
+              <Link 
+                key={item.link} 
+                href={item.link} 
+                onClick={() => {
+                  setIsProfileOpen(false);
+                  handleItemClick(item.label);
+                }}
+              >
+                <div className={`flex items-center px-4 py-3 hover:bg-gray-50 rounded-xl transition-all duration-200 ${isActive ? "bg-orange-50 shadow-sm" : ""}`}>
                   <span className={`${isActive ? "text-orange-500" : "text-gray-600"}`}>
                     {item.icon}
                   </span>
@@ -143,52 +179,48 @@ const BottomNav = () => {
             <div key={item.href} className="flex-1">
               {item.onClick ? (
                 <button 
+                  ref={isDataSiswa ? buttonRef : null}
                   onClick={item.onClick} 
                   className="w-full focus:outline-none"
                   aria-label={item.label}
+                  aria-expanded={isProfileOpen}
                 >
-                  <div className="flex flex-col items-center relative">
+                  <div className={`flex flex-col items-center relative`}>
                     <div
                       className={`text-xl transition-all duration-300 ${
-                        isActive ? "opacity-0" : `text-gray-600 ${isDataSiswa ? 'text-orange-600' : 'hover:text-cyan-500'}`
+                        isProfileOpen ? "text-orange-500" : "text-orange-600"
                       }`}
                     >
                       {item.icon}
                     </div>
-                    <span
-                      className={`text-xs mt-1 transition-all duration-300 ${
-                        isActive 
-                          ? "font-semibold bg-clip-text text-transparent" 
-                          : isDataSiswa
-                            ? "text-orange-500"
-                            : "text-gray-500"
-                      }`}
+                    <div
+                      className={`text-xs mt-1 transition-all duration-100 ${
+                        isProfileOpen ? "text-orange-400" : "text-orange-500"
+                      } ${
+                    clickedItem === item.label ? "transform scale-95" : ""
+                  }`}
                     >
                       {isDataSiswa ? activeLabel : item.label}
-                    </span>
+                    </div>
                   </div>
                 </button>
               ) : (
-                <Link href={item.href} className="w-full" aria-label={item.label}>
-                  <div className="flex flex-col items-center relative">
-                    {isActive && (
-                      <div className="absolute -top-6 flex items-center justify-center bg-gradient-to-r from-cyan-400 to-lime-400 rounded-full w-14 h-14 shadow-lg z-10 transition-all duration-300">
-                        <div className="text-white">{item.icon}</div>
-                      </div>
-                    )}
+                <Link 
+                  href={item.href} 
+                  className="w-full" 
+                  aria-label={item.label}
+                  onClick={() => handleItemClick(item.label)}
+                >
+                  <div className={`flex flex-col items-center relative transition-transform duration-200 ${
+                    clickedItem === item.label ? "transform scale-90" : ""
+                  }`}>
                     <div
-                      className={`text-xl transition-all duration-300 ${
-                        isActive ? "opacity-0" : "text-gray-600 hover:text-cyan-500"
-                      }`}
+                      className={`text-xl ${isActive ? "text-orange-600" : "text-gray-600"}`}
                     >
                       {item.icon}
                     </div>
                     <span
-                      className={`text-xs mt-1 transition-all duration-300 ${
-                        isActive 
-                          ? "font-semibold bg-gradient-to-r from-cyan-500 to-lime-500 bg-clip-text text-transparent" 
-                          : "text-gray-500"
-                      }`}
+                      className={`text-xs mt-1 ${isActive ? "text-orange-500" : "text-gray-500"}`}
                     >
                       {item.label}
                     </span>
