@@ -1,6 +1,6 @@
 "use client";
 
-import BottomNav from "@/app/components/Siswa/DataSiswa/BottomNav";
+import BottomNav from "@/app/components/global/BottomNav";
 
 const BukuInduk = () => {
   return (

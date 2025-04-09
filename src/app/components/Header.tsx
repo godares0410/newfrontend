@@ -1,7 +1,7 @@
 "use client";
 
-import Topnav from "@/app/components/Siswa/DataSiswa/TopNav";
-import BottomNav from "@/app/components/Siswa/DataSiswa/BottomNav";
+import Topnav from "@/app/components/global/TopNav";
+import BottomNav from "@/app/components/global/BottomNav";
 import type { HeaderProps } from "@/app/components/types/siswa";
 
 const Header = ({ menuData }: HeaderProps) => {
