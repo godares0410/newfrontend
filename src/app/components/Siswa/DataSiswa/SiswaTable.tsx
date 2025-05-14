@@ -191,7 +191,7 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
   }
 
   return (
-    <div className="w-full max-h-full overflow-auto">
+    <div className="w-full max-h-full overflow-auto mt-2">
       {selectedRows.size > 0 && (
         <div className="h-10 sticky top-0 z-40 bg-cyan-100 flex items-center p-2">
           <div className="flex gap-2">

@@ -1,6 +1,7 @@
 "use client";
 
 import PCNav from "@/app/components/global/pcnav";
+import HPNav from "@/app/components/global/Hpnav";
 
 interface MenuItem {
   label: string;
@@ -41,6 +42,18 @@ export default function Nav({
   return (
     <>
       {/* Mobile navigation would go here */}
+      <HPNav
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        setCurrentPage={setCurrentPage}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        menuData={menuData}
+      />
       
       {/* PC Navigation */}
       <PCNav
