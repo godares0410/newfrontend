@@ -1,3 +1,4 @@
+// /Users/admin/Documents/newfrontend/src/app/components/Siswa/DataSiswa/SiswaTable.tsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import {
@@ -11,6 +12,8 @@ import { IoIosClose } from "react-icons/io";
 import type { SiswaTableProps } from "@/app/components/types/siswa";
 import ExportButton from "@/app/components/Siswa/DataSiswa/ExportButton";
 import ArsipButton from "@/app/components/Siswa/DataSiswa/ArsipButton";
+import HapusButton from "@/app/components/Siswa/DataSiswa/DeleteButton";
+import EditMassalModal from "@/app/components/Siswa/DataSiswa/EditMassalModal";
 
 const SiswaTable: React.FC<SiswaTableProps> = ({
   siswaData,
@@ -229,10 +232,11 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
               statusFilter={statusFilter}
             />
 
-            <button className="text-slate-600 hover:bg-cyan-400 cursor-pointer text-sm p-1 bg-cyan-300 rounded-lg flex gap-1 items-center transition-colors">
-              <FaPencil /> Edit Massal
-            </button>
-
+            {statusFilter && (
+              <button className="text-slate-600 hover:bg-cyan-400 cursor-pointer text-sm p-1 bg-cyan-300 rounded-lg flex gap-1 items-center transition-colors">
+                <FaPencil /> Edit Massal
+              </button>
+            )}
             <ArsipButton
               selectedRows={selectedRows}
               disabled={isLoadingAllIds}
@@ -240,6 +244,15 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
               onError={handleArsipError}
               statusFilter={statusFilter}
             />
+            {!statusFilter && (
+              <HapusButton
+                selectedRows={selectedRows}
+                disabled={isLoadingAllIds}
+                onSuccess={handleArsipSuccess} // Anda bisa buat handler khusus untuk hapus jika perlu
+                onError={handleArsipError}
+              />
+            )}
+
           </div>
         </div>
       )}
