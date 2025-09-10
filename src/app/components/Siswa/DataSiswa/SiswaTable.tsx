@@ -6,14 +6,17 @@ import {
   FaArrowUpShortWide,
   FaSort,
   FaArrowRightLong,
-  FaPencil
+  FaPencil,
+  FaEye
 } from "react-icons/fa6";
 import { IoIosClose } from "react-icons/io";
-import type { SiswaTableProps } from "@/app/components/types/siswa";
+import type { Siswa, SiswaTableProps } from "@/app/components/types/siswa";
 import ExportButton from "@/app/components/Siswa/DataSiswa/ExportButton";
 import ArsipButton from "@/app/components/Siswa/DataSiswa/ArsipButton";
 import HapusButton from "@/app/components/Siswa/DataSiswa/DeleteButton";
-import EditMassalModal from "@/app/components/Siswa/DataSiswa/EditMassalModal";
+import DetailModal from "@/app/components/Siswa/DataSiswa/DetailModal";
+import EditModal from "@/app/components/Siswa/DataSiswa/EditModal";
+import { toast } from 'react-toastify';
 
 const SiswaTable: React.FC<SiswaTableProps> = ({
   siswaData,
@@ -33,6 +36,19 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
     type: 'success' | 'error';
     message: string;
   } | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedSiswa, setSelectedSiswa] = useState<Siswa | null>(null);
+  // Handler functions
+  const handleDetailClick = (siswa: Siswa) => {
+    setSelectedSiswa(siswa);
+    setShowDetailModal(true);
+  };
+
+  const handleEditClick = (siswa: Siswa) => {
+    setSelectedSiswa(siswa);
+    setShowEditModal(true);
+  };
 
   const handleArsipSuccess = useCallback(() => {
     setNotification({ type: 'success', message: 'Siswa berhasil diarsipkan' });
@@ -192,6 +208,12 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
       </div>
     );
   }
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleEditSuccess = () => {
+    setRefreshKey(prev => prev + 1); // Trigger refresh data
+    toast.success('Data siswa berhasil diperbarui');
+  };
 
   return (
     <div className="w-full max-h-full overflow-auto mt-2">
@@ -337,6 +359,9 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
               <th className="px-4 py-3 text-center">
                 <span className="text-sm font-medium">Ekstrakurikuler</span>
               </th>
+              <th className="px-4 py-3 text-center sticky right-0 bg-slate-100 z-20">
+                <span className="text-sm font-medium">Action</span>
+              </th>
             </tr>
           </thead>
 
@@ -398,11 +423,46 @@ const SiswaTable: React.FC<SiswaTableProps> = ({
                     ))}
                   </div>
                 </td>
+                <td className="px-4 py-3 bg-inherit z-10">
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => handleDetailClick(siswa)}
+                      className="p-1 text-blue-600 hover:bg-blue-100 rounded cursor-pointer"
+                      title="Detail"
+                    >
+                      <FaEye />
+                    </button>
+                    <button
+                      onClick={() => handleEditClick(siswa)}
+                      className="p-1 text-green-600 hover:bg-green-100 rounded cursor-pointer"
+                      title="Edit"
+                    >
+                      <FaPencil />
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {showDetailModal && (
+        <DetailModal
+          siswa={selectedSiswa!}
+          onClose={() => setShowDetailModal(false)}
+          isOpen={showDetailModal}
+        />
+      )}
+
+      // Di JSX:
+      {showEditModal && (
+        <EditModal
+          siswa={selectedSiswa!}
+          onClose={() => setShowEditModal(false)}
+          isOpen={showEditModal} onSave={function (): void {
+            throw new Error('Function not implemented.');
+          } }        />
+      )}
     </div>
   );
 };

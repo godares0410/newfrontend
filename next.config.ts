@@ -1,3 +1,4 @@
+// /Users/admin/Documents/newfrontend/next.config.ts
 const nextConfig = {
     async rewrites() {
         return [

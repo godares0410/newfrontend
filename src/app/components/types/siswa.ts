@@ -8,14 +8,21 @@ export type Siswa = {
     jenis_kelamin: string;
     tahun_masuk: number;
     foto: string;
-    status: string;
+    status: number;
     id_sekolah: number;
     created_at: string;
     updated_at: string;
     nama_kelas: string;
     nama_jurusan: string;
     nama_rombel: string;
-    ekskul: { nama: string; warna: string }[];
+    id_kelas?: number;
+    id_jurusan?: number;
+    id_rombel?: number;
+    ekskul: Array<{
+        id_ekskul: number;
+        nama: string;
+        warna: string;
+    }>;
 };
 
 export type SortConfig = {
@@ -30,7 +37,7 @@ export type SiswaTableProps = {
     totalData: number;
     currentPage: number;
     itemsPerPage: number;
-    statusFilter: boolean; 
+    statusFilter: boolean;
 };
 
 export type Ekskul = {
