@@ -1,8 +1,9 @@
 // /Users/admin/Documents/newfrontend/src/app/siswa/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import useSWR from 'swr';
 import Header from "@/app/components/Header";
 import Nav from "@/app/components/Nav";
 import SiswaCard from "@/app/components/Siswa/DataSiswa/SiswaCard";
@@ -12,23 +13,19 @@ import type { Siswa, Ekskul, SortConfig } from "@/app/components/types/siswa";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function Siswa() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [siswaData, setSiswaData] = useState<Siswa[]>([]);
-    const [ekskulData, setEkskulData] = useState<Ekskul[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [totalPages, setTotalPages] = useState(1);
-    const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
-    const itemsPerPage = 100;
-    const [total, setTotal] = useState(0);
     const [sortConfig, setSortConfig] = useState<SortConfig>({
         key: 'nama_siswa',
         order: 'asc'
     });
     const [statusFilter, setStatusFilter] = useState(true);
+    const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+    const itemsPerPage = 100;
 
     const menuData = {
         icon: "/img/aplikasi/Siswa.svg",
@@ -40,6 +37,26 @@ export default function Siswa() {
             { label: "Laporan", link: "/siswa/laporan" },
         ],
     };
+
+    const { data, error, isLoading } = useSWR(
+        `/api/siswa/${statusFilter ? 1 : 0}?page=${currentPage}&search=${encodeURIComponent(searchQuery)}&sort=${sortConfig.key}&order=${sortConfig.order}`,
+        fetcher,
+        { revalidateOnFocus: false }
+    );
+
+    const siswaData = useMemo(() => data?.data_siswa || [], [data]);
+    const total = useMemo(() => data?.total || 0, [data]);
+    const totalPages = Math.ceil(total / itemsPerPage);
+
+    const warnaEkskul = useMemo(() => {
+        const ekskulList = siswaData.flatMap((siswa: Siswa) =>
+            siswa.ekskul.map((e: any) => ({ nama: e.nama, warna: e.warna }))
+        );
+        const uniqueWarnaEkskul = Array.from(new Set(ekskulList.map((e: any) => e.nama)))
+            .map((nama: any) => ekskulList.find((e: any) => e.nama === nama))
+            .filter((e): e is Ekskul => e !== undefined);
+        return uniqueWarnaEkskul;
+    }, [siswaData]);
 
     const handleSort = (key: 'nama_siswa' | 'nis' | 'nisn' | 'nama_kelas' | 'nama_rombel') => {
         setSortConfig(prev => {
@@ -55,48 +72,6 @@ export default function Siswa() {
             };
         });
     };
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get<{ data_siswa: Siswa[]; total: number }>(`/api/siswa/${statusFilter ? 1 : 0}`, {
-                    params: {
-                        page: currentPage,
-                        search: searchQuery,
-                        sort: sortConfig.key,
-                        order: sortConfig.order,
-                    },
-                });
-
-                const dataSiswa = response.data.data_siswa || [];
-                setSiswaData(dataSiswa);
-                setTotal(response.data.total);
-                setTotalPages(Math.ceil(response.data.total / itemsPerPage));
-
-                const warnaEkskul = dataSiswa.flatMap(siswa =>
-                    siswa.ekskul.map(e => ({ nama: e.nama, warna: e.warna }))
-                );
-
-                const uniqueWarnaEkskul = Array.from(new Set(warnaEkskul.map(e => e.nama)))
-                    .map(nama => {
-                        return warnaEkskul.find(e => e.nama === nama);
-                    })
-                    .filter((e): e is Ekskul => e !== undefined);
-
-                setEkskulData(uniqueWarnaEkskul);
-                setIsLoading(false);
-            } catch (err) {
-                if (err instanceof Error) {
-                    setError(err.message);
-                } else {
-                    setError("An unknown error occurred");
-                }
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, [currentPage, searchQuery, sortConfig, statusFilter]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -135,7 +110,7 @@ export default function Siswa() {
             <main className="h-screen flex flex-col items-center bg-cyan-100 overflow-auto">
                 <Header menuData={menuData} />
                 <div className="flex-1 flex justify-center items-center">
-                    <p className="text-red-500">Error: {error}</p>
+                    <p className="text-red-500">Error: {error.message || 'Unknown error'}</p>
                 </div>
             </main>
         );
@@ -166,7 +141,7 @@ export default function Siswa() {
                         </div>
                     ) : viewMode === "kanban" ? (
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 w-full h-full py-4">
-                            {siswaData.map((siswa, index) => (
+                            {siswaData.map((siswa: Siswa, index: number) => (
                                 <SiswaCard
                                     key={index}
                                     siswa={{
@@ -175,10 +150,10 @@ export default function Siswa() {
                                         nisn: siswa.nisn,
                                         kelas: siswa.nama_kelas,
                                         rombel: siswa.nama_rombel,
-                                        ekskul: siswa.ekskul.map(e => e.nama),
+                                        ekskul: siswa.ekskul.map((e: any) => e.nama),
                                         foto: siswa.foto
                                     }}
-                                    ekskulData={ekskulData}
+                                    ekskulData={warnaEkskul}
                                 />
                             ))}
                         </div>
